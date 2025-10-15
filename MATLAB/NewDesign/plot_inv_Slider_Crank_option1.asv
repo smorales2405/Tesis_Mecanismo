@@ -8,8 +8,8 @@ function plot_inv_Slider_Crank_option1(rA,rB,rC,rBS,rL1,rL2,rD,rE,rP,rP_v,c_curr
     title({'Five-Bar Inverted Slider-Crank - Option 1 (Vertical DE)'});
     
     % Add point labels
-    text(rA(1), rA(2)-1.5*s,'A','HorizontalAlignment','center'); 
-    text(rD(1), rD(2)-1.5*s,'D','HorizontalAlignment','center');
+    text(rA(1), rA(2)+s,'A','HorizontalAlignment','center'); 
+    text(rD(1)+2*s, rD(2),'D','HorizontalAlignment','center');
     grid on; hold on;
     
     % Plot ground/frame

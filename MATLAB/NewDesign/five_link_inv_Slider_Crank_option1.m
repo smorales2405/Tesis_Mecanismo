@@ -9,16 +9,16 @@ set(0,'defaultAxesFontSize',10);
 a = 3;      % crank length (m) [r2]
 d = 5*a;    % length between ground pins A and D (m) [r1]
 b = 1.5*a;  % Rocker length (m) [r3]
-e = 20;     % Slider length EP (m) [length of platform]
+e = 30;     % Slider length EP (m) [length of platform]
 
 %% Actuator Configuration (DE)
 % Mode selection: 'fixed', 'extend_contract', 'extend_only'
 actuator_mode = 'extend_contract';  % Change this to select mode
 
 c_initial = 1.5*a;  % Initial length of DE (m)
-c_min = 1.0*a;      % Minimum length of DE (m)
-c_max = 2.5*a;      % Maximum length of DE (m)
-c_velocity = 10.0;   % Actuator velocity (m/s) - positive for extension, negative for contraction
+c_min = 1*a;      % Minimum length of DE (m)
+c_max = 3*a;      % Maximum length of DE (m)
+c_velocity = 25.0;   % Actuator velocity (m/s) - positive for extension, negative for contraction
 
 % For fixed mode
 c_fixed = 1.5*a;    % Fixed length when actuator_mode = 'fixed'
@@ -51,7 +51,7 @@ c_length = zeros(size(t)); % Variable length of DE
 
 %% Initialize Crank Motion
 theta2(1) = 0*pi/180;  % Set Crank initial angle
-fth2 = 4*pi;           % Set final theta2 angle
+fth2 = 8*pi;           % Set final theta2 angle
 w2 = fth2/tf;          % Angular velocity (rad/s)
 for i = 2:tf/dt 
     theta2(i) = theta2(i-1) + dt*w2;
@@ -93,10 +93,10 @@ end
 %% Plot Settings
 LinkColor = [14 103 180]/255;
 % Dynamic axis limits based on mechanism dimensions
-f = 1.3;
+f = 1.0;
 xl = -(e-d)*f; xu = (d+a)*f; 
 yl = -(a+b)*f; yu = (c_max+e+a)*f;
-sp = 0.5;
+sp = 1.0;
 
 %% Main Simulation Loop
 figure(1),
