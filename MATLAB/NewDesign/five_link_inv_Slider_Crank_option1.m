@@ -18,7 +18,7 @@ actuator_mode = 'extend_contract';  % Change this to select mode
 c_initial = 1.5*a;  % Initial length of DE (m)
 c_min = 1.0*a;      % Minimum length of DE (m)
 c_max = 2.5*a;      % Maximum length of DE (m)
-c_velocity = 2.0;   % Actuator velocity (m/s) - positive for extension, negative for contraction
+c_velocity = 10.0;   % Actuator velocity (m/s) - positive for extension, negative for contraction
 
 % For fixed mode
 c_fixed = 1.5*a;    % Fixed length when actuator_mode = 'fixed'
@@ -113,6 +113,13 @@ for k = 1:(tf/dt+1)
     
     % Find position of C and angle theta4 using Option 1 kinematics
     [theta3(k), theta4(k)] = calc_theta3_theta4_option1(rA, rB, rD, rE, b, e);
+    
+    % VERIFICATION: Check that BC is perpendicular to PE
+    angle_diff = abs(theta3(k) - theta4(k));
+    angle_diff = mod(angle_diff, 2*pi);
+    if abs(angle_diff - pi/2) > 0.01 && abs(angle_diff - 3*pi/2) > 0.01
+        warning('BC is not perpendicular to PE at time %.2f', t(k));
+    end
     
     % Calculate position of C
     [eBC,nBC] = UnitVector(theta3(k));

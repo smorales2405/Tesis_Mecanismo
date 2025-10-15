@@ -53,9 +53,23 @@ function plot_inv_Slider_Crank_option1(rA,rB,rC,rBS,rL1,rL2,rD,rE,rP,rP_v,c_curr
     plot([rBS(1) rL1(1)],[rBS(2) rL1(2)],'Color',LinkColor, 'LineWidth', 2);
     plot([rBS(1) rL2(1)],[rBS(2) rL2(2)],'Color',LinkColor, 'LineWidth', 2);
     
-    % Draw sliding connection between C and EP
-    % Show that C slides on EP
+    % Draw sliding connection between C and EP - PERPENDICULAR CONNECTION
+    % Show that BC is perpendicular to PE
     plot([rC(1) rE(1)], [rC(2) rE(2)], 'g--', 'LineWidth', 1, 'Color', [0.2 0.6 0.2]);
+    
+    % Add perpendicular symbol at C
+    % Calculate perpendicular symbol
+    vec_BC = [rC(1) - rB(1); rC(2) - rB(2)];
+    vec_EC = [rC(1) - rE(1); rC(2) - rE(2)];
+    vec_BC = vec_BC / norm(vec_BC);
+    vec_EC = vec_EC / norm(vec_EC);
+    
+    % Draw small square to indicate 90° angle
+    square_size = 0.3;
+    square_corner = rC - square_size * vec_BC - square_size * vec_EC;
+    square_pts = [square_corner, square_corner + square_size*vec_BC, ...
+                  rC, square_corner + square_size*vec_EC, square_corner];
+    plot(square_pts(1,:), square_pts(2,:), 'k-', 'LineWidth', 1);
            
     % Plot joints on linkage
     plot([rA(1) rB(1) rD(1) rE(1) rP(1)],...
