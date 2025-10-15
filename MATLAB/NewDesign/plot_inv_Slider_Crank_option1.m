@@ -57,28 +57,33 @@ function plot_inv_Slider_Crank_option1(rA,rB,rC,rBS,rL1,rL2,rD,rE,rP,rP_v,c_curr
     % Show that BC is perpendicular to PE
     plot([rC(1) rE(1)], [rC(2) rE(2)], 'g--', 'LineWidth', 1, 'Color', [0.2 0.6 0.2]);
     
-    % Add perpendicular symbol at C
-    % Calculate perpendicular symbol
-    vec_BC = [rC(1) - rB(1); rC(2) - rB(2)];
-    vec_EC = [rC(1) - rE(1); rC(2) - rE(2)];
-    vec_BC = vec_BC / norm(vec_BC);
-    vec_EC = vec_EC / norm(vec_EC);
-    
-    % Draw small square to indicate 90° angle
-    square_size = 0.3;
-    square_corner = rC - square_size * vec_BC - square_size * vec_EC;
-    square_pts = [square_corner, square_corner + square_size*vec_BC, ...
-                  rC, square_corner + square_size*vec_EC, square_corner];
-    plot(square_pts(1,:), square_pts(2,:), 'k-', 'LineWidth', 1);
+    % % Add perpendicular symbol at C
+    % % Calculate perpendicular symbol
+    % vec_BC = [rC(1) - rB(1); rC(2) - rB(2)];
+    % vec_EC = [rC(1) - rE(1); rC(2) - rE(2)];
+    % vec_BC = vec_BC / norm(vec_BC);
+    % vec_EC = vec_EC / norm(vec_EC);
+    % 
+    % % Draw small square to indicate 90° angle
+    % square_size = 0.3;
+    % square_corner = rC - square_size * vec_BC - square_size * vec_EC;
+    % square_pts = [square_corner, square_corner + square_size*vec_BC, ...
+    %               rC, square_corner + square_size*vec_EC, square_corner];
+    % plot(square_pts(1,:), square_pts(2,:), 'k-', 'LineWidth', 1);
            
     % Plot joints on linkage
-    plot([rA(1) rB(1) rD(1) rE(1) rP(1)],...
-         [rA(2) rB(2) rD(2) rE(2) rP(2)],...
-         'o','MarkerSize',8,'MarkerFaceColor',LinkColor,'Color',LinkColor);
-    
+    plot([rA(1) rD(1)],...
+         [rA(2) rD(2)],...
+         "^",'MarkerSize',6,'MarkerFaceColor',LinkColor,'Color',LinkColor);
+ 
+    % Plot joints on linkage
+    plot([rB(1) rE(1) rP(1)],...
+         [rB(2) rE(2) rP(2)],...
+         'o','MarkerSize',4,'MarkerFaceColor',LinkColor,'Color',LinkColor);
+
     % Highlight sliding joint at C
-    plot(rC(1), rC(2), 'square', 'MarkerSize', 10, ...
-         'MarkerFaceColor', [0.8 0.8 0.2], 'MarkerEdgeColor', 'k', 'LineWidth', 2);
+    %plot(rC(1), rC(2), 'square', 'MarkerSize', 4, ...
+    %     'MarkerFaceColor', [0.8 0.8 0.2], 'MarkerEdgeColor', 'k', 'LineWidth', 2);
      
     % Trajectory of P
     plot(rP_v(1,:),rP_v(2,:),'.','Color','#D95319', 'MarkerSize', 3); 
