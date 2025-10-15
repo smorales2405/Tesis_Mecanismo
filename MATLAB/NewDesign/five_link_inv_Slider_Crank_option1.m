@@ -93,10 +93,10 @@ end
 %% Plot Settings
 LinkColor = [14 103 180]/255;
 % Dynamic axis limits based on mechanism dimensions
-f = 1.0;
-xl = -(e-d)*f; xu = (d+a)*f; 
-yl = -(a+b)*f; yu = (c_max+e+a)*f;
-sp = 1.0;
+f = 1.2;
+xl = -(e/2)*f; xu = (e/2)*f; 
+yl = -(a)*f; yu = (c_max)*f;
+sp = 0.75;
 
 %% Main Simulation Loop
 figure(1),
@@ -175,9 +175,9 @@ for k = 1:(tf/dt+1)
     hold off;
     
     % Add status text
-    text(xu-5, yu-1, sprintf('Time: %.2f s', t(k)), 'FontSize', 10);
-    text(xu-5, yu-2, sprintf('Actuator: %.2f m', c_length(k)), 'FontSize', 10);
-    text(xu-5, yu-3, sprintf('Mode: %s', actuator_mode), 'FontSize', 10);
+    % text(xu-5, yu-1, sprintf('Time: %.2f s', t(k)), 'FontSize', 10);
+    % text(xu-5, yu-2, sprintf('Actuator: %.2f m', c_length(k)), 'FontSize', 10);
+    % text(xu-5, yu-3, sprintf('Mode: %s', actuator_mode), 'FontSize', 10);
     
     pause(dt);
 end

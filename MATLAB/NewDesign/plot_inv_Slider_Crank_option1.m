@@ -5,7 +5,7 @@ function plot_inv_Slider_Crank_option1(rA,rB,rC,rBS,rL1,rL2,rD,rE,rP,rP_v,c_curr
       
     % Figure configuration
     plot(nan), xlabel('x (m)'), ylabel('y (m)');
-    title({'Five-Bar Inverted Slider-Crank - Option 1 (Vertical DE)'});
+    title({'Five-Bar Inverted Slider-Crank'});
     
     % Add point labels
     text(rA(1), rA(2)-1.5*s,'A','HorizontalAlignment','center'); 
@@ -93,9 +93,9 @@ function plot_inv_Slider_Crank_option1(rA,rB,rC,rBS,rL1,rL2,rD,rE,rP,rP_v,c_curr
          'MarkerFaceColor', [0.7 0.7 0.7], 'MarkerEdgeColor', 'k', 'LineWidth', 1.5);
     
     % Mark actuator limits with subtle lines
-    plot([rD(1)-outer_cyl_width-0.3, rD(1)-outer_cyl_width-0.1], ...
+    plot([rD(1)+outer_cyl_width+0.3, rD(1)+outer_cyl_width+0.1], ...
          [rD(2)+c_min, rD(2)+c_min], 'k--', 'LineWidth', 0.5);
-    plot([rD(1)-outer_cyl_width-0.3, rD(1)-outer_cyl_width-0.1], ...
+    plot([rD(1)+outer_cyl_width+0.3, rD(1)+outer_cyl_width+0.1], ...
          [rD(2)+c_max, rD(2)+c_max], 'k--', 'LineWidth', 0.5);
     text(rD(1)+outer_cyl_width+1, rD(2)+c_min, 'MIN', ...
          'FontSize', 7, 'HorizontalAlignment', 'right');
