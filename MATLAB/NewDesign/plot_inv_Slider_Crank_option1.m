@@ -1,4 +1,4 @@
-function plot_inv_Slider_Crank_option1(rA,rB,rC,rBS,rL1,rL2,rD,rE,rP,rP_v,c_current,c_min,c_max,s,t, LinkColor)
+function plot_inv_Slider_Crank_option1(rA,rB,rC,rD,rE,rP,rP_v,c_current,c_min,c_max,s,t, LinkColor)
 % plot_inv_Slider_Crank_option1
 % Plots the five-bar mechanism with Option 1 configuration
 % DE is vertical telescopic actuator, EP rotates around E
@@ -116,9 +116,37 @@ function plot_inv_Slider_Crank_option1(rA,rB,rC,rBS,rL1,rL2,rD,rE,rP,rP_v,c_curr
     text(rP(1), rP(2)+s,'P','HorizontalAlignment','center');
     
     % Plot slide base at C
-    plot([rB(1) rBS(1)],[rB(2) rBS(2)],'Color',LinkColor, 'LineWidth', 2);
-    plot([rBS(1) rL1(1)],[rBS(2) rL1(2)],'Color',LinkColor, 'LineWidth', 2);
-    plot([rBS(1) rL2(1)],[rBS(2) rL2(2)],'Color',LinkColor, 'LineWidth', 2);
+    % plot([rB(1) rBS(1)],[rB(2) rBS(2)],'Color',LinkColor, 'LineWidth', 2);
+    % plot([rBS(1) rL1(1)],[rBS(2) rL1(2)],'Color',LinkColor, 'LineWidth', 2);
+    % plot([rBS(1) rL2(1)],[rBS(2) rL2(2)],'Color',LinkColor, 'LineWidth', 2);
+    % Dimensiones del rectángulo del slider
+slider_length = 1.2;  % Longitud del rectángulo a lo largo de PE
+slider_width = 0.6;   % Ancho del rectángulo perpendicular a PE
+
+% Calcular el ángulo de la barra EP para orientar el slider
+angle_EP = atan2(rP(2)-rE(2), rP(1)-rE(1));
+
+% Vectores unitarios a lo largo y perpendicular a EP
+e_along = [cos(angle_EP); sin(angle_EP)];
+e_perp = [-sin(angle_EP); cos(angle_EP)];
+
+% Calcular las esquinas del rectángulo centrado en C
+corner1 = rC - (slider_length/2)*e_along - (slider_width/2)*e_perp;
+corner2 = rC + (slider_length/2)*e_along - (slider_width/2)*e_perp;
+corner3 = rC + (slider_length/2)*e_along + (slider_width/2)*e_perp;
+corner4 = rC - (slider_length/2)*e_along + (slider_width/2)*e_perp;
+
+% Dibujar el rectángulo del slider (verde)
+slider_x = [corner1(1), corner2(1), corner3(1), corner4(1), corner1(1)];
+slider_y = [corner1(2), corner2(2), corner3(2), corner4(2), corner1(2)];
+patch(slider_x, slider_y, [0.2 0.8 0.2], 'EdgeColor', 'k', 'LineWidth', 2, 'FaceAlpha', 0.7);
+
+% Dibujar el punto de conexión dentro del slider (rojo)
+plot(rC(1), rC(2), 'o', 'MarkerSize', 6, ...
+     'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'k', 'LineWidth', 2);
+
+text(rC(1), rC(2)+s,'C','HorizontalAlignment','center');
+
     
     % Draw sliding connection between C and EP - PERPENDICULAR CONNECTION
     % plot([rC(1) rE(1)], [rC(2) rE(2)], 'g--', 'LineWidth', 1, 'Color', [0.2 0.6 0.2]);

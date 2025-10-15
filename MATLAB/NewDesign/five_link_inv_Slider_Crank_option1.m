@@ -25,8 +25,6 @@ c_fixed = 1.5*a;    % Fixed length when actuator_mode = 'fixed'
 
 %% Ground Configuration
 theta1 = 0*(pi/180); % Angle between AD and 'x' axis
-d_sc = 0.1;  % slide connector offset
-bs = 1;      % Slide base length
 
 % Ground pins
 rA = [0; 0]; % ground pin at A (origin)
@@ -123,17 +121,12 @@ for k = 1:(tf/dt+1)
     
     % Calculate position of C
     [eBC,nBC] = UnitVector(theta3(k));
-    rC = FindPos(rB, b-d_sc, eBC);
+    rC = FindPos(rB, b, eBC);
     
     % Find position of P
     [eEP,nEP] = UnitVector(theta4(k));
     rP = FindPos(rE, e, eEP);
     rP_v(:,k) = rP;
-    
-    % Positions of the slide base limits
-    rBS = FindPos(rB, b-d_sc, eBC);
-    rL1 = FindPos(rBS, bs/2, eEP);
-    rL2 = FindPos(rBS, bs/2, -eEP);
     
     % Velocities (simplified for Option 1)
     % Angular velocity of BC
@@ -169,7 +162,7 @@ for k = 1:(tf/dt+1)
     w3_prev = w3; w4_prev = w4; c_vel_prev = c_vel;
     
     % Plot Simulation
-    plot_inv_Slider_Crank_option1(rA,rB,rC,rBS,rL1,rL2,rD,rE,rP,rP_v,c_length(k),c_min,c_max,sp,t(k), LinkColor);
+    plot_inv_Slider_Crank_option1(rA,rB,rC,rD,rE,rP,rP_v,c_length(k),c_min,c_max,sp,t(k), LinkColor);
     axis([xl xu yl yu]); 
     axis equal
     hold off;
