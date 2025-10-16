@@ -5,7 +5,7 @@ function plot_five_link_inv_Slider_Crank(rA,rB,rC,rD,rE,rMidPE,rP,rMidPE_v,c_cur
       
     % Figure configuration
     plot(nan), xlabel('x (m)'), ylabel('y (m)');
-    title({'Five-Bar Inverted Slider-Crank'});
+    title({'Banco de pruebas oscilante'});
     
     %% Add point labels
     text(rA(1), rA(2)-1.5*s,'A','HorizontalAlignment','center'); 
