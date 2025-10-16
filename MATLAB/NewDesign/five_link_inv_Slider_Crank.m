@@ -18,7 +18,7 @@ actuator_mode = 'extend_contract';  % Change this to select mode
 c_initial = 1.5*a;  % Initial length of DE (m)
 c_min = 1*a;      % Minimum length of DE (m)
 c_max = 3*a;      % Maximum length of DE (m)
-c_velocity = 10.0;   % Actuator velocity (m/s) - positive for extension, negative for contraction
+c_velocity = 15.0;   % Actuator velocity (m/s) - positive for extension, negative for contraction
 
 % For fixed mode
 c_fixed = 1.5*a;    % Fixed length when actuator_mode = 'fixed'
@@ -32,7 +32,7 @@ rA = [0; 0]; % ground pin at A (origin)
 rD = FindPos(rA, d, eAD); % ground pin at D
 
 %% Simulation configuration
-tf = 3.0;      % Set Time in seconds
+tf = 4.0;      % Set Time in seconds
 dt = 0.01;   % Set Sampling time
 t = 0:dt:tf; % Time vector
 
@@ -49,7 +49,7 @@ c_length = zeros(size(t)); % Variable length of DE
 
 %% Initialize Crank Motion
 theta2(1) = 0*pi/180;  % Set Crank initial angle
-fth2 = deg2rad(360+45);           % Set final theta2 angle
+fth2 = 6*pi;           % Set final theta2 angle
 w2 = fth2/tf;          % Angular velocity (rad/s)
 for i = 2:tf/dt+1 
     theta2(i) = theta2(i-1) + dt*w2;
@@ -209,3 +209,22 @@ xlabel('Tiempo (s)');
 % ylabel('Length (m)'); 
 % title('Actuator Length DE', 'interpreter','latex');
 % legend('Length', 'Min', 'Max', 'Location', 'best');
+
+%% Plots for document
+
+figure(4), clf;
+plot(t,rMidPE_v(1,:),'-','Color',"#1171BE"); grid on; hold on;
+plot(t,rMidPE_v(2,:),'-','Color',"#8516D1");
+ylabel('Posición (m)'); title('Posición de O (PE)'); 
+legend('$P_x$','$P_y$','interpreter','latex');
+
+figure(5), clf;
+plot(t,vMidPE_v(1,:),'-','Color',"#2FBEEF"); grid on; hold on;
+plot(t,vMidPE_v(2,:),'-','Color',"#D1048B");
+ylabel('Velocidad (m/s)'); title('Velocidad de O (PE)'); 
+legend('$V_x$','$V_y$','interpreter','latex');
+
+figure(6), clf;
+plot(t, theta4*180/pi,'Color',"#DD5400"); grid on;
+ylabel('Ángulo (deg)'); title('Angulo tangente $\theta_4$ (EP)', 'interpreter','latex');
+xlabel('Tiempo (s)');
