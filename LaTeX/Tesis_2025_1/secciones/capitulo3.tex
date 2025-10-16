@@ -1,0 +1,292 @@
+\chapter{ MARCO METODOLÓGICO}
+
+La presente investigación es de tipo aplicada, ya que busca desarrollar una plataforma experimental para el análisis dinámico de sistemas mecatrónicos mediante vibraciones inducidas. El enfoque es cuantitativo, sustentado en la medición de aceleraciones con sensores y el análisis numérico mediante transformada rápida de Fourier (FFT).
+
+El diseño adoptado es experimental, dado que se ejecutan pruebas controladas bajo distintas condiciones de carga, frecuencia y amplitud, lo que permite observar la respuesta estructural del sistema. La metodología seguida es transversal, al realizarse las mediciones en un solo periodo definido con múltiples configuraciones operativas.
+
+Para estructurar el proceso de diseño, se consideraron las etapas propuestas en la norma VDI 2225, incluyendo análisis funcional, exploración de alternativas, selección técnica e integración de componentes, el cual se encuentra detallado en los anexos \ref{ANEXO:1} y \ref{ANEXO:2}. El objetivo de esta metodología es orientar la construcción y validación de un banco de pruebas oscilante de dos grados de libertad con amplitud variable, orientado al uso académico y experimental.
+
+\section{Cumplimiento de objetivos específicos}
+
+Para cumplir con los objetivos planteados en la investigación, se elaboró el siguiente diagrama de flujo de la figura \ref{fig:refs} el cual permitirá seguir el lineamiento del proyecto.
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=1\textwidth]{images/Diagrama en blanco.png}
+\caption{Diagrama de flujo de los objetivos específicos}
+\label{fig:refs}
+\end{center}
+\end{figure}
+
+\section{Simulación Cinemática del Mecanismo en MATLAB}
+
+La simulación del banco de pruebas oscilante se realizó en MATLAB debido a las siguientes razones fundamentales:
+
+\begin{itemize}
+    \item \textbf{Capacidad de análisis cinemático}: MATLAB proporciona herramientas matemáticas avanzadas que permiten resolver de manera eficiente las ecuaciones de cierre de lazo y las relaciones cinemáticas del mecanismo de cinco barras con biela-corredera invertida.
+    
+    \item \textbf{Visualización dinámica}: El entorno de MATLAB facilita la generación de animaciones en tiempo real que permiten observar el comportamiento del mecanismo durante su operación, así como la representación detallada de cada componente mecánico.
+    
+    \item \textbf{Análisis paramétrico}: La estructura de programación de MATLAB permite modificar fácilmente los parámetros del sistema (dimensiones, velocidades, modos de operación) sin necesidad de reconstruir el modelo completo, lo cual resulta fundamental para el proceso de optimización del diseño.
+    
+    \item \textbf{Verificación previa a la fabricación}: La simulación permite validar el comportamiento cinemático del mecanismo antes de la etapa de manufactura, identificando posibles singularidades, interferencias o configuraciones inviables del sistema.
+\end{itemize}
+
+\subsection{Características Configurables del Modelo}
+
+El modelo de simulación desarrollado permite configurar los siguientes parámetros del mecanismo:
+
+\subsubsection{Dimensiones del Mecanismo}
+
+\begin{itemize}
+    \item \textbf{Longitud de la manivela (a)}: Define el radio de giro de la barra AB.
+    \item \textbf{Distancia entre apoyos (d)}: Separación entre los puntos fijos A y D.
+    \item \textbf{Longitud de la biela (b)}: Longitud de la barra BC.
+    \item \textbf{Longitud de la plataforma (e)}: Longitud total de la barra PE que soporta la carga.
+\end{itemize}
+
+\subsubsection{Configuración del Actuador Lineal}
+
+El actuador Lineal DE, que constituye uno de los elementos de control principal del sistema, puede operar en tres modos distintos:
+
+\begin{enumerate}
+    \item \textbf{Modo fijo}: El actuador mantiene una longitud constante predefinida, lo que genera un movimiento determinista del mecanismo.
+    
+    \item \textbf{Modo extender-contraer}: El actuador alterna entre extensión y contracción dentro de límites establecidos ($c_{min}$ y $c_{max}$), permitiendo estudiar el comportamiento dinámico completo del sistema.
+    
+    \item \textbf{Modo solo extensión}: El actuador se extiende hasta alcanzar su longitud máxima y permanece en esa configuración.
+\end{enumerate}
+
+Los parámetros configurables del actuador incluyen:
+\begin{itemize}
+    \item Longitud inicial ($c_{initial}$)
+    \item Longitud mínima ($c_{min}$)
+    \item Longitud máxima ($c_{max}$)
+    \item Velocidad de actuación ($c_{velocity}$)
+\end{itemize}
+
+\subsubsection{Parámetros de Simulación}
+
+\begin{itemize}
+    \item \textbf{Tiempo total de simulación (tf)}: Duración de la simulación en segundos.
+    \item \textbf{Paso de tiempo (dt)}: Intervalo de discretización temporal para la integración numérica.
+    \item \textbf{Velocidad angular de la manivela (w2)}: Velocidad de rotación del eslabón impulsor AB.
+\end{itemize}
+
+\subsection{Metodología de Implementación}
+
+La implementación de la simulación se estructuró en dos archivos principales de MATLAB:
+
+\subsubsection{Archivo Principal: \texttt{five\_link\_inv\_Slider\_Crank.m}}
+
+Este script constituye el núcleo de la simulación y ejecuta las siguientes funciones:
+
+\begin{enumerate}
+    \item \textbf{Inicialización de parámetros}: Se definen todas las dimensiones del mecanismo, la configuración del actuador y los parámetros temporales de la simulación.
+    
+    \item \textbf{Generación de trayectorias}: Se calculan las trayectorias de entrada tanto para la manivela (rotación continua de AB) como para el actuador telescópico (extensión/contracción de DE) según el modo seleccionado.
+    
+    \item \textbf{Análisis cinemático en cada paso temporal}: Para cada instante de tiempo, se resuelven las ecuaciones de cierre de lazo del mecanismo mediante la función \texttt{calc\_theta3\_theta4}, que determina:
+    \begin{itemize}
+        \item Posición angular de la biela BC ($\theta_3$)
+        \item Posición angular de la plataforma PE ($\theta_4$)
+        \item Posición del punto C (corredera sobre el riel de PE)
+    \end{itemize}
+    
+    \item \textbf{Cálculo de velocidades y aceleraciones}: Mediante diferenciación numérica, se obtienen las velocidades angulares ($\omega_3$, $\omega_4$) y las aceleraciones del punto medio de la plataforma PE, aplicando las ecuaciones de velocidad y aceleración para sistemas multicuerpo.
+    
+    \item \textbf{Visualización dinámica}: En cada iteración se invoca la función de graficación para mostrar la configuración instantánea del mecanismo y la trayectoria acumulada del punto de interés.
+\end{enumerate}
+
+\subsubsection{Archivo de Visualización: \texttt{plot\_five\_link\_inv\_Slider\_Crank.m}}
+
+Esta función genera la representación gráfica del mecanismo con un alto nivel de detalle, incluyendo:
+
+\begin{itemize}
+    \item \textbf{Representación del actuador lineal}: Se dibuja el actuador DE con cilindros concéntricos (exterior fijo e interior móvil), base de montaje y detalles de ensamblaje, replicando visualmente el diseño mecánico real.
+    
+    \item \textbf{Visualización de barras y eslabones}: Todas las barras del mecanismo (AB, BC, PE) se representan como elementos rectangulares con dimensiones proporcionales a su función estructural.
+    
+    \item \textbf{Sistema de riel y corredera}: Se muestra el riel inferior fijo a la barra PE y la corredera C que se desplaza sobre él, incluyendo ranuras y detalles de guiado.
+    
+    \item \textbf{Chumaceras y articulaciones}: Los puntos de rotación A, B y D se representan mediante chumaceras con rodamientos, bases de montaje y tornillos de fijación.
+    
+    \item \textbf{Indicadores de estado}: Se muestra la longitud actual del actuador mediante una barra indicadora vertical (MIN-MAX) que permite visualizar el estado de extensión del sistema.
+    
+    \item \textbf{Trayectoria del punto de interés}: Se grafica la trayectoria seguida por el punto medio de la plataforma PE (punto O), lo cual permite observar el patrón de movimiento generado por el mecanismo.
+\end{itemize}
+
+\subsection{Resultados Visuales y Gráficos Obtenidos}
+
+La simulación genera los siguientes resultados que permiten caracterizar completamente el comportamiento cinemático del banco de pruebas:
+
+\subsubsection{Animación del Mecanismo}
+
+Se obtiene una visualización dinámica en tiempo real (Figura \ref{fig:sim_mechanism}) que muestra:
+\begin{itemize}
+    \item La configuración instantánea de todos los eslabones del mecanismo
+    \item El estado de extensión del actuador telescópico
+    \item La trayectoria acumulada del punto medio de la plataforma
+    \item La posición del slider C sobre el riel de PE
+\end{itemize}
+
+Esta animación permite identificar visualmente posibles interferencias entre componentes y verificar que el mecanismo opera dentro de los rangos cinemáticos deseados.
+
+\subsubsection{Gráficas de Posición, Velocidad y Aceleración}
+
+Se generan gráficas temporales que muestran la evolución de:
+
+\begin{enumerate}
+    \item \textbf{Posición del punto O}: Coordenadas $P_x$ y $P_y$ del punto medio de la plataforma PE en función del tiempo, permitiendo cuantificar el desplazamiento horizontal y vertical durante el ciclo de operación.
+    
+    \item \textbf{Velocidad del punto O}: Componentes de velocidad $V_x$ y $V_y$, fundamentales para determinar los rangos de velocidad a los que estará sometida la carga durante las pruebas.
+    
+    \item \textbf{Aceleración del punto O}: Componentes de aceleración $A_x$ y $A_y$, críticas para evaluar las cargas inerciales que experimentará el sistema y dimensionar adecuadamente los actuadores y la estructura.
+\end{enumerate}
+
+\subsubsection{Gráficas de Variables del Mecanismo}
+
+Se generan gráficas adicionales que permiten analizar:
+
+\begin{itemize}
+    \item \textbf{Altura de la plataforma}: Evolución de la coordenada vertical del punto O, mostrando el rango de elevación alcanzado por el banco de pruebas.
+    
+    \item \textbf{Ángulo tangente $\theta_4$}: Variación del ángulo de inclinación de la plataforma PE, parámetro fundamental para caracterizar la orientación de la carga durante las pruebas.
+\end{itemize}
+
+Estos resultados gráficos proporcionan información cuantitativa esencial para la optimización del diseño y la validación del concepto antes de la construcción del prototipo físico.
+
+\section{Esquemático del sistema de adquisición y de control}
+
+En la Figura \ref{fig:esquema_adquisicion} se presenta el esquema general del sistema de adquisición de vibraciones y de control implementado en el banco de pruebas. Este sistema permite registrar las aceleraciones generadas durante las oscilaciones inducidas mecánicamente, mediante el uso de un acelerómetro MEMS de bajo costo, conectado a un microcontrolador a través del protocolo I2C.
+
+El microcontrolador empleado es el ESP32, el cual ofrece múltiples entradas y salidas digitales o PWM, así como buses de comunicación I2C y SPI, lo que facilita la integración con sensores y el control de actuadores. La alimentación del sistema proviene de una batería cuya tensión nominal es de 11.1V con la cual se alimenta el puente H y se emplea un regulador de voltaje para alimentar el microcontrolador que recibe de entrada 5 V garantizando un voltaje estable para el sistema de control. Posteriormente, el microcontrolador se encargará de alimentar el acelerómetro con su salida de 3.3V. Por seguridad, se incorpora un fusible en la salida de la batería, así como un interruptor (switch) que permite encender y apagar todo el sistema manualmente.
+
+El sensor seleccionado para la medición de aceleraciones es el MPU6050, un módulo que combina acelerómetro y giroscopio de 6 ejes. Su elección se fundamenta en su bajo costo, buena sensibilidad en el rango de baja frecuencia (1–20~Hz), y compatibilidad con el protocolo I2C del ESP32. Además, su amplio soporte técnico y documentación lo hacen idóneo para entornos académicos. Aunque existen alternativas más avanzadas como el ISM330DHCX o el IIM42352, estas requieren controladores con mayor capacidad de procesamiento, niveles de voltaje más altos o interfaces más complejas, lo cual incrementa los costos y complica su implementación en laboratorios educativos.
+
+Estudios recientes han validado el desempeño del MPU6050, MPU6500 y ADXL345 para tareas de monitoreo de vibraciones estructurales. En particular, el estudio de \cite{srokosz2024} evaluó el uso de sensores MEMS en una plataforma experimental orientada a estructuras civiles, concluyendo que dichos sensores presentan una estabilidad operativa adecuada, buena sensibilidad y eficiencia energética, lo que los hace apropiados para sistemas de adquisición de bajo costo como el que se propone en este trabajo.
+
+La comunicación con el ESP32 se realiza a través del bus I2C, utilizando resistencias de pull-up de 4.7~k$\Omega$ para asegurar la integridad de la señal. Los datos se adquieren periódicamente mediante interrupciones programadas y se almacenan para su posterior análisis en MATLAB. En esta etapa, se aplica la transformada rápida de Fourier (FFT) para extraer información espectral del comportamiento dinámico del sistema.
+
+Con el objetivo de reducir interferencias eléctricas provenientes del motor y su controlador, se implementó aislamiento galvánico entre la etapa de control y la etapa de potencia. Asimismo, el sensor fue montado sobre una base parcialmente desacoplada del actuador, a fin de evitar la transmisión directa de vibraciones mecánicas espurias que puedan afectar la calidad de los datos.
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=1\textwidth]{images/Esquematico_Tesis_bb2.png}
+\caption{Esquema del sistema electrónico de adquisición}
+\label{fig:esquema_adquisicion}
+\end{center}
+\end{figure}
+
+\section{Desarrollo de la Interfaz de Usuario Web Configurable}
+
+\subsection{Arquitectura del Sistema de Control}
+
+Para el control y configuración del banco de pruebas oscilante, se implementó una interfaz web interactiva alojada en un servidor web embebido en el microcontrolador ESP32. La arquitectura del sistema se compone de los siguientes elementos:
+
+\begin{itemize}
+	\item \textbf{Microcontrolador ESP32}: Actúa como servidor web y controlador principal del sistema. 
+	
+	\item \textbf{Módulo microSD con comunicación SPI}: Almacena los archivos de la interfaz web (HTML, CSS, JavaScript) que conforman la aplicación. La comunicación entre el ESP32 y el módulo microSD se realiza mediante el protocolo SPI (\textit{Serial Peripheral Interface}), permitiendo acceso rápido a los recursos del servidor web.
+	
+	\item \textbf{Red WiFi}: El ESP32 crea un punto de acceso WiFi, permitiendo que cualquier dispositivo con navegador web (computadora, tablet, smartphone) acceda a la interfaz de control.
+\end{itemize}
+
+Esta arquitectura proporciona flexibilidad y escalabilidad, ya que las modificaciones en la interfaz se realizan actualizando los archivos en la microSD sin necesidad de reprogramar el microcontrolador.
+
+\subsection{Definición de Parámetros Configurables}
+
+En una primera etapa, se definieron los parámetros que deberían ser ajustables por el usuario para permitir un control completo del sistema. La interfaz se diseñó en dos módulos funcionales independientes:
+
+\subsubsection{Módulo de Generación de Señales}
+
+Se implementó un sistema de generación de señales basado en la superposición de componentes sinusoidales y cosenoidales, permitiendo crear patrones de excitación desde simples (una sola frecuencia) hasta complejos (múltiples componentes). Los parámetros configurables incluyen:
+
+\begin{itemize}
+	\item Número de componentes (dinámico, agregables y eliminables)
+	\item Tipo de función (seno o coseno)
+	\item Amplitud de cada componente (0-100 unidades)
+	\item Frecuencia (0.1-10 Hz)
+	\item Fase (0°-360°)
+	\item Activación/desactivación individual
+	\item Velocidad de animación de la visualización
+\end{itemize}
+
+\subsubsection{Módulo de Control de Motores}
+
+Se definieron controles diferenciados para los dos actuadores del sistema:
+
+\paragraph{Motor Rotacional:} Control de velocidad (0-300 RPM) y dirección (horario/antihorario).
+
+\paragraph{Motor Lineal:} Se establecieron tres modos de operación:
+\begin{enumerate}
+	\item \textbf{Modo Manual}: Control directo de posición mediante interfaz
+	\item \textbf{Modo Automático}: Oscilación continua con rango y velocidad configurables
+	\item \textbf{Modo Seguir Onda}: Reproducción física del patrón generado por el módulo de ondas
+\end{enumerate}
+
+\subsection{Implementación Técnica}
+
+\subsubsection{Selección de Tecnologías}
+
+Para el desarrollo de la interfaz se utilizaron tecnologías web estándar (HTML5, CSS3, JavaScript puro) sin frameworks externos. Esta decisión se fundamentó en:
+
+\begin{itemize}
+	\item Minimizar el tamaño de los archivos almacenados en la microSD
+	\item Garantizar compatibilidad universal con cualquier navegador moderno
+	\item Reducir la carga de procesamiento en el ESP32
+	\item Facilitar el mantenimiento y modificación del código
+\end{itemize}
+
+Se empleó canvas HTML5 para la visualización gráfica en tiempo real de las ondas generadas y los estados de los motores, permitiendo animaciones fluidas con bajo consumo de recursos.
+
+\subsubsection{Comunicación ESP32-Interfaz Web}
+
+La comunicación entre la interfaz web y el ESP32 se estableció mediante peticiones HTTP asíncronas:
+
+\begin{itemize}
+	\item \textbf{Servidor web}: El ESP32 ejecuta un servidor HTTP que sirve los archivos estáticos desde la microSD y procesa comandos de control.
+	
+	\item \textbf{API REST}: Se implementaron endpoints para configuración de parámetros, control de motores, lectura de estado del sistema y adquisición de datos de sensores.
+	
+	\item \textbf{Actualización bidireccional}: La interfaz envía comandos al ESP32 cuando el usuario modifica parámetros, y el microcontrolador responde con confirmación o datos de estado del sistema.
+\end{itemize}
+
+\subsubsection{Integración con el Hardware}
+
+La interfaz web se integró con el hardware del banco de pruebas mediante los siguientes subprogramas implementados en el ESP32:
+
+\begin{itemize}
+	\item \textbf{Generación de señales PWM}: Generación de señales para controlar los variadores de frecuencia de los motores, basándose en los parámetros configurados desde la interfaz.
+	
+	\item \textbf{Adquisición de datos}: Lectura de sensores analógicos (acelerómetros) conectados a los puertos ADC del ESP32.
+	
+	\item \textbf{Sistema de archivos SPI}: Gestión de la comunicación con el módulo microSD para acceso a los archivos de la interfaz web y almacenamiento de datos de pruebas.
+	
+	\item \textbf{Control de seguridad}: Validación de rangos operativos, detección de condiciones anormales y funciones de parada de emergencia.
+\end{itemize}
+
+Esta arquitectura de control distribuida, donde la interfaz gráfica opera en el navegador del usuario y el control en tiempo real se ejecuta en el ESP32, proporciona un sistema robusto, escalable y de fácil operación para la realización de pruebas dinámicas en el banco de pruebas oscilante.
+
+\section{Pruebas de Validación}
+
+Una vez construido el prototipo inicial, se realizará una validación preliminar del diseño mediante pruebas con usuarios representativos, principalmente docentes y estudiantes del área de ingeniería. Estas sesiones tendrán como objetivo evaluar la usabilidad, la disposición de los elementos en la interfaz y la claridad en la visualización de los resultados. En base a la retroalimentación obtenida, se efectuarán los ajustes necesarios para mejorar la experiencia de usuario, garantizando una interacción clara y eficiente.
+
+Seguidamente, se establecerá la comunicación entre la interfaz de usuario y el sistema físico. Se configurarán las conexiones entre los parámetros introducidos en la interfaz y el controlador embebido (ESP32), encargado de generar la señal de excitación mecánica. De igual forma, se programará la adquisición continua de datos provenientes de los acelerómetros, de modo que estos puedan ser procesados y visualizados en tiempo real.
+
+Una vez implementada esta comunicación, se habilitará la visualización en tiempo real de los datos adquiridos. Se utilizarán gráficos dinámicos para representar la aceleración en función del tiempo y se aplicará la Transformada Rápida de Fourier (FFT) para obtener el espectro de frecuencias del sistema. Esta funcionalidad permitirá identificar comportamientos dinámicos relevantes y verificar el correcto funcionamiento del mecanismo bajo diversas condiciones de prueba.
+
+Finalmente, se llevarán a cabo pruebas funcionales del sistema completo, considerando distintas combinaciones de parámetros y condiciones de operación. Estas pruebas tendrán como finalidad comprobar la estabilidad de la interfaz, la precisión en la adquisición y procesamiento de los datos, y la eficacia en la interacción entre el usuario y el sistema físico. La interfaz será considerada satisfactoria si demuestra un comportamiento confiable, una presentación clara de los datos y una operatividad acorde con los objetivos propuestos en el entorno académico.
+
+\section{Análisis de frecuencia ante distintas condiciones}
+
+Para evaluar el comportamiento dinámico del banco de pruebas oscilante, se planteó una serie de pruebas experimentales orientadas a registrar y analizar las oscilaciones inducidas bajo distintas condiciones operativas. La caracterización se centra en tres parámetros clave: la carga aplicada sobre el extremo móvil, la frecuencia de excitación controlada mediante la señal PWM, y la amplitud mecánica ajustada por configuración geométrica del mecanismo.
+
+Durante las pruebas, se aplicarán combinaciones de estos parámetros, con el fin de estudiar su influencia sobre la respuesta del sistema. Para cada configuración, se registrarán señales de aceleración utilizando el acelerómetro MPU6050, conectado al dispositivo ESP32. La adquisición se realiza a una frecuencia constante determinada en función del rango dinámico esperado (frecuencias entre 1~Hz y 20~Hz), garantizando un muestreo adecuado conforme al teorema de Nyquist.
+
+Los datos de aceleración obtenidos en tiempo continuo serán segmentados y procesados en MATLAB, donde se aplicará la Transformada Rápida de Fourier (FFT) para obtener el espectro de frecuencia. Sin embargo, para mejorar la calidad de los datos, se emplearán ventanas de Hann o Hamming en la etapa previa al análisis espectral, con el objetivo de mitigar el efecto de fugas espectrales. Además, las señales serán tratadas con un filtro pasa banda, con el fin de eliminar componentes de baja frecuencia asociadas al ruido de base y atenuar altas frecuencias no relevantes para el rango operativo del sistema.
+Esto permitirá identificar frecuencias dominantes del sistema, evaluar la respuesta espectral y detectar posibles resonancias.
+
+También se realizarán múltiples repeticiones por configuración, lo cual permitirá estimar la variabilidad experimental y validar la repetibilidad de los resultados.
+
+Esto se complementará con la documentación detallada de las condiciones de prueba, incluyendo masa de carga, frecuencia de PWM, posición inicial del mecanismo y condiciones ambientales relevantes. Y así asegurar la trazabilidad de las pruebas y su posterior comparación.

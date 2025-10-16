@@ -1,0 +1,71 @@
+\hfill {Pág.}\par 
+\babel@toc {spanish}{}\relax 
+\babel@toc {spanish}{}\relax 
+\vspace {1.5em}
+\contentsline {section}{\bfseries INTRODUCCIÓN }{1}{chapter*.1}%
+\contentsline {section}{\bfseries Presentación del tema de investigación }{1}{chapter*.1}%
+\contentsline {section}{\bfseries Descripción de la situación problemática }{1}{chapter*.1}%
+\contentsline {section}{\bfseries Formulación del problema }{3}{chapter*.1}%
+\contentsline {section}{\bfseries Objetivos de investigación }{3}{chapter*.1}%
+\contentsline {section}{\bfseries Justificación }{4}{chapter*.1}%
+\contentsline {section}{\bfseries Alcance y limitaciones / restricciones }{5}{chapter*.1}%
+\contentsline {chapter}{\numberline {I}REVISIÓN CRÍTICA DE LA LITERATURA}{6}{chapter.2}%
+\contentsline {chapter}{\numberline {II}MARCO TEÓRICO}{14}{chapter.7}%
+\contentsline {section}{\numberline {2.1}Oscilaciones mecánicas}{14}{section.8}%
+\contentsline {subsection}{\numberline {2.1.1}Excitación mecánica controlada}{15}{subsection.11}%
+\contentsline {section}{\numberline {2.2}Banco de pruebas oscilante}{16}{section.12}%
+\contentsline {subsection}{\numberline {2.2.1}Sistema mecánico y de actuación}{16}{subsection.13}%
+\contentsline {subsubsection}{\numberline {2.2.1.1}Configuración del mecanismo}{18}{subsubsection.15}%
+\contentsline {subsubsection}{\numberline {2.2.1.2}Análisis de posición}{18}{subsubsection.16}%
+\contentsline {subsubsection}{\numberline {2.2.1.3}Análisis de velocidad}{20}{subsubsection.24}%
+\contentsline {subsubsection}{\numberline {2.2.1.4}Análisis de aceleración}{20}{subsubsection.30}%
+\contentsline {subsubsection}{\numberline {2.2.1.5}Análisis cinético}{21}{subsubsection.36}%
+\contentsline {subsection}{\numberline {2.2.2}Acelerómetros}{26}{subsection.62}%
+\contentsline {section}{\numberline {2.3}Transformada de Fourier y análisis en frecuencia}{28}{section.66}%
+\contentsline {chapter}{\numberline {III} MARCO METODOLÓGICO}{30}{chapter.69}%
+\contentsline {section}{\numberline {3.1}Cumplimiento de objetivos específicos}{30}{section.70}%
+\contentsline {section}{\numberline {3.2}Simulación Cinemática del Mecanismo en MATLAB}{31}{section.72}%
+\contentsline {subsection}{\numberline {3.2.1}Características Configurables del Modelo}{32}{subsection.73}%
+\contentsline {subsubsection}{\numberline {3.2.1.1}Dimensiones del Mecanismo}{32}{subsubsection.74}%
+\contentsline {subsubsection}{\numberline {3.2.1.2}Configuración del Actuador Lineal}{33}{subsubsection.75}%
+\contentsline {subsubsection}{\numberline {3.2.1.3}Parámetros de Simulación}{33}{subsubsection.79}%
+\contentsline {subsection}{\numberline {3.2.2}Metodología de Implementación}{34}{subsection.80}%
+\contentsline {subsubsection}{\numberline {3.2.2.1}Archivo Principal: \texttt {five\_link\_inv\_Slider\_Crank.m}}{34}{subsubsection.81}%
+\contentsline {subsubsection}{\numberline {3.2.2.2}Archivo de Visualización: \texttt {plot\_five\_link\_inv\_Slider\_Crank.m}}{35}{subsubsection.87}%
+\contentsline {subsection}{\numberline {3.2.3}Resultados Visuales y Gráficos Obtenidos}{36}{subsection.88}%
+\contentsline {subsubsection}{\numberline {3.2.3.1}Animación del Mecanismo}{36}{subsubsection.89}%
+\contentsline {subsubsection}{\numberline {3.2.3.2}Gráficas de Posición, Velocidad y Aceleración}{36}{subsubsection.90}%
+\contentsline {subsubsection}{\numberline {3.2.3.3}Gráficas de Variables del Mecanismo}{37}{subsubsection.94}%
+\contentsline {section}{\numberline {3.3}Esquemático del sistema de adquisición y de control}{37}{section.95}%
+\contentsline {section}{\numberline {3.4}Desarrollo de la Interfaz de Usuario Web Configurable}{40}{section.97}%
+\contentsline {subsection}{\numberline {3.4.1}Arquitectura del Sistema de Control}{40}{subsection.98}%
+\contentsline {subsection}{\numberline {3.4.2}Definición de Parámetros Configurables}{41}{subsection.99}%
+\contentsline {subsubsection}{\numberline {3.4.2.1}Módulo de Generación de Señales}{41}{subsubsection.100}%
+\contentsline {subsubsection}{\numberline {3.4.2.2}Módulo de Control de Motores}{41}{subsubsection.101}%
+\contentsline {paragraph}{Motor Rotacional:}{42}{paragraph*.102}%
+\contentsline {paragraph}{Motor Lineal:}{42}{paragraph*.103}%
+\contentsline {subsection}{\numberline {3.4.3}Implementación Técnica}{42}{subsection.107}%
+\contentsline {subsubsection}{\numberline {3.4.3.1}Selección de Tecnologías}{42}{subsubsection.108}%
+\contentsline {subsubsection}{\numberline {3.4.3.2}Comunicación ESP32-Interfaz Web}{43}{subsubsection.109}%
+\contentsline {subsubsection}{\numberline {3.4.3.3}Integración con el Hardware}{43}{subsubsection.110}%
+\contentsline {section}{\numberline {3.5}Pruebas de Validación}{44}{section.111}%
+\contentsline {section}{\numberline {3.6}Análisis de frecuencia ante distintas condiciones}{45}{section.112}%
+\contentsline {chapter}{\numberline {IV}RESULTADOS}{47}{chapter.113}%
+\contentsline {section}{\numberline {4.1}Diseño mecánico y de actuación}{47}{section.114}%
+\contentsline {section}{\numberline {4.2}Simulación}{49}{section.117}%
+\contentsline {subsection}{\numberline {4.2.1}Validación mediante simulación cinemática y cinética}{49}{subsection.118}%
+\contentsline {section}{\numberline {4.3}Interfaz de Usuario Web}{53}{section.123}%
+\contentsline {subsection}{\numberline {4.3.1}Panel Generador de Ondas}{54}{subsection.125}%
+\contentsline {subsection}{\numberline {4.3.2}Panel Control de Motores}{55}{subsection.126}%
+\contentsline {subsubsection}{\numberline {4.3.2.1}Motor Rotacional}{56}{subsubsection.127}%
+\contentsline {subsubsection}{\numberline {4.3.2.2}Motor Lineal}{56}{subsubsection.128}%
+\contentsline {subsection}{\numberline {4.3.3}Funcionalidad Demostrada}{57}{subsection.129}%
+\contentsline {section}{\bfseries ANEXOS}{63}{chapter*.131}%
+\contentsline {section}{\numberline {4.4}Requerimientos de diseño generales}{63}{section.132}%
+\contentsline {section}{\numberline {4.5}Estructura de funciones}{64}{section.134}%
+\contentsline {subsection}{\numberline {4.5.1}Caja negra con entradas y salidas}{64}{subsection.135}%
+\contentsline {subsection}{\numberline {4.5.2}Estructura de funciones global}{67}{subsection.137}%
+\contentsline {subsection}{\numberline {4.5.3}Elaboración de alternativas}{69}{subsection.139}%
+\contentsline {subsection}{\numberline {4.5.4}Comparación de alternativas}{70}{subsection.141}%
+\contentsline {section}{\numberline {4.6}Diagrama de Gantt}{73}{section.144}%
+\contentsline {section}{\numberline {4.7}Tabla de información}{73}{section.146}%

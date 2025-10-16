@@ -1,0 +1,26 @@
+\babel@toc {spanish}{}\relax 
+\babel@toc {spanish}{}\relax 
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Mecanismo experimental de tipo inverted slider-crank}}{7}{figure.caption.3}%
+\contentsline {figure}{\numberline {1.2}{\ignorespaces Diagrama de la estructura del mecanismo usado para generar oscilaciones en la máquina vibratoria}}{10}{figure.caption.5}%
+\contentsline {figure}{\numberline {1.3}{\ignorespaces Comparativa espectro frecuencia con FFT y e-FFT}}{12}{figure.caption.6}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces (a) Diagrama del mecanismo (b) Diagrama vectorial del mecanismo}}{17}{figure.caption.14}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Mecanismo de cinco barras accionado por el momento M2}}{21}{figure.caption.37}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Diagramas de cuerpo libre para eslabones sometidos a fuerzas a lo largo del eslabón en un mecanismo de cinco barras.}}{22}{figure.caption.39}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Diagramas de cuerpo libre para eslabones sometidos a fuerzas normales al eslabón en un mecanismo de cinco barras}}{23}{figure.caption.40}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces Esquema básico de funcionamiento de un acelerómetro tipo MEMS capacitivo \cite {sciencedirect_accelerometer}.}}{27}{figure.caption.65}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Diagrama de flujo de los objetivos específicos}}{31}{figure.caption.71}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Esquema del sistema electrónico de adquisición}}{39}{figure.caption.96}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Vistas del diseño CAD del banco de pruebas oscilante}}{48}{figure.caption.115}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Detalle del mecanismo del actuador lineal}}{48}{figure.caption.116}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Simulación del movimiento del mecanismo en MATLAB}}{49}{figure.caption.119}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Posición angular $\theta _4$ vs tiempo}}{50}{figure.caption.120}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Posición del punto $O$ vs tiempo}}{51}{figure.caption.121}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Velocidad del punto $O$ vs tiempo}}{52}{figure.caption.122}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Interfaz web implementada para control del banco de pruebas oscilante}}{54}{figure.caption.124}%
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Caja negra con entradas y salidas del banco de pruebas oscilante}}{66}{figure.caption.136}%
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Estructura de funciones global}}{67}{figure.caption.138}%
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Cronograma de redacción del informe}}{73}{figure.caption.145}%

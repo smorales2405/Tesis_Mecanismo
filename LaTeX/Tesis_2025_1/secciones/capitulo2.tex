@@ -1,0 +1,365 @@
+
+\chapter{MARCO TEÓRICO}
+
+A partir de la revisión crítica de literatura, se identificaron tres componentes clave: oscilaciones mecánicas, banco de pruebas oscilante y análisis frecuencial (FFT). Estos fundamentos respaldan el diseño del banco de pruebas desarrollado y sirven como base para interpretar sus resultados.
+
+
+\section{Oscilaciones mecánicas}
+
+Las oscilaciones mecánicas (movimientos periódicos alrededor de una posición de equilibrio en sistemas masa–resorte–amortiguador) son ampliamente estudiadas para el análisis de respuesta dinámica y validación de sistemas mecatrónicos \cite{mit_ocw_second_order, sciencedirect_second_order}. Cuando una fuerza externa desplaza el sistema, la rigidez y la inercia provocan retornos sucesivos, generando oscilaciones libres o forzadas \cite{mit_second_order_response}.
+
+La dinámica está descrita por:
+
+\begin{equation}
+\label{eq:ecuacion_dinamica}
+m\ddot{x}(t) + c\dot{x}(t) + kx(t) = F(t)
+\end{equation}
+
+Dividiendo por \(m\), se definen la frecuencia natural \(\omega_n\) y el coeficiente de amortiguamiento relativo \(\zeta\) \cite{sciencedirect_second_order}:
+
+\begin{equation}
+\label{eq:frecuencia_amortiguamiento}
+\omega_n = \sqrt{\frac{k}{m}}, \quad \zeta = \frac{c}{2\sqrt{km}}
+\end{equation}
+
+Según el valor de \(\zeta\) de la ecuación \ref{eq:frecuencia_amortiguamiento}, el sistema se comporta de forma diferente:
+
+\begin{itemize}
+    \item Si \(\zeta < 1\): sistema subamortiguado, con oscilaciones amortiguadas:
+    \[
+    x(t) = A e^{-\zeta \omega_n t} \cos(\omega_d t + \phi), \quad \omega_d = \omega_n \sqrt{1 - \zeta^2}
+    \]
+    \item Si \(\zeta = 1\): amortiguamiento crítico, sin oscilaciones.
+    \item Si \(\zeta > 1\): sobreamortiguado, respuesta lenta sin oscilaciones.
+\end{itemize}
+
+El análisis en el dominio de la frecuencia, utilizando herramientas como la transformada de Fourier, permite identificar frecuencias naturales y evaluar resonancias \cite{mit_ocw_second_order}.
+
+\subsection{Excitación mecánica controlada}
+
+La excitación mecánica controlada se refiere a la aplicación deliberada de movimientos oscilatorios en un sistema mediante actuadores, con el fin de inducir una respuesta medible. Dependiendo del tipo de actuador, se pueden generar perfiles periódicos como ondas sinusoidales, cuadradas o personalizadas \cite{mit_mechatronics_modeling}.
+
+Los actuadores comúnmente utilizados incluyen motores eléctricos (DC, paso a paso), motores con reductores, actuadores lineales y, en aplicaciones más precisas, dispositivos piezoeléctricos. La elección del actuador depende del tipo de oscilación deseada (angular o lineal), la frecuencia objetivo, la carga a mover y el grado de control necesario.
+
+En el presente proyecto se emplea una configuración mecánica que transforma el movimiento rotativo de un motor en oscilación angular, lo que permite generar perfiles repetitivos de manera controlada.
+
+\section{Banco de pruebas oscilante}
+
+Un banco de pruebas oscilante es una plataforma diseñada para inducir oscilaciones mecánicas controladas en sistemas mecatrónicos, permitiendo estudiar parámetros dinámicos como frecuencia natural, rigidez y amortiguamiento \cite{construction_impedance_bench, multifunc_test_bench}. Se utilizan ampliamente en investigación, validación de algoritmos y docencia.
+
+\textbf{Dificultades comunes}:
+
+\begin{itemize}
+    \item Precisión del montaje y aislamiento de vibraciones externas
+    \item Ruido en los sensores
+    \item Calibración de los actuadores
+    \item Seguridad frente a resonancia y fatiga mecánica
+\end{itemize}
+
+Suelen emplearse en aplicaciones de laboratorio para la enseñanza de dinámica estructural, validación de sensores, o evaluación de componentes mecatrónicos. Un banco de pruebas debe permitir la medición fiable de variables como aceleración, desplazamiento y fuerza, además de ofrecer seguridad ante posibles resonancias o fallas estructurales.
+
+\subsection{Sistema mecánico y de actuación}
+
+El mecanismo propuesto para el banco de pruebas oscilante está constituido por cinco eslabones conectados mediante pares cinemáticos revoluta y prismática, conformando un sistema plano de dos grados de libertad.
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=0.9\textwidth]{images/cinematica.jpg}
+\caption{(a) Diagrama del mecanismo  (b) Diagrama vectorial del mecanismo}
+\label{fig:cinmatica}
+\end{center}
+\end{figure}
+
+
+El movimiento del conjunto es inducido por un motor ubicado en el punto A, el cual aplica un momento torsor sobre el primer eslabón móvil, una biela motriz articulada al bastidor mediante un par revoluta. Esta biela transmite el movimiento a un eslabón intermedio a través de una segunda articulación rotacional. El eslabón intermedio funciona como acoplador, cuya función es transferir la energía cinemática hacia el siguiente componente del sistema mediante un enlace prismático, que permite un desplazamiento lineal relativo entre ambos cuerpos a lo largo de una dirección fija.
+
+El cuarto eslabón del sistema actúa como oscilador, ejecutando un movimiento angular alternante respecto a una dirección de referencia determinada por las condiciones geométricas del sistema. Este oscilador se encuentra vinculado al eslabón de cierre por medio de un segundo par prismático. Este último enlace cumple una función esencial: permite regular la amplitud de oscilación del eslabón oscilante. Al modificar la posición relativa entre los puntos de acoplamiento prismáticos, se altera la configuración geométrica del mecanismo, afectando directamente el ángulo máximo alcanzado por el oscilador durante su movimiento cíclico.
+
+
+\subsubsection{Configuración del mecanismo}
+
+El mecanismo analizado corresponde a un sistema de cinco barras dispuestas de forma que forman dos lazos cerrados, incluyendo un cuerpo rígido en forma de "L". Este cuerpo está formado por las barras $r_4$ y $r_5$, unidas en ángulo recto. Se consideran los siguientes elementos:
+
+\begin{itemize}
+\item $d$: distancia fija entre los pivotes A y D (base).
+\item $a$: biela de entrada (manivela), que gira con $\theta_2$.
+\item $b$: barra intermedia que conecta el punto B con C.
+\item $e$: parte horizontal del cuerpo en L (de C hacia P).
+\item $c$: parte vertical del cuerpo en L (de D hacia E), donde se instala un actuador de longitud constante.
+\end{itemize}
+
+La secuencia de puntos sigue el orden: A $\rightarrow$ B $\rightarrow$ C $\rightarrow$ E $\rightarrow$ D. El punto P se encuentra en la prolongación de la barra horizontal desde C. El cuerpo CE–ED se comporta como una pieza rígida unificada.
+
+\subsubsection{Análisis de posición}
+
+Este análisis tiene como objetivo determinar la orientación angular $\theta_3$ del cuerpo rígido, así como la posición de los puntos C, E y P a partir de los valores conocidos de $\theta_2$ y las longitudes geométricas.
+
+\textbf{Cierre vectorial} \\
+
+Se emplea una ecuación de cierre vectorial que representa el lazo del mecanismo:
+\begin{equation}
+\vec{r}_2 + \vec{r}_3 + \vec{r}_4 = \vec{r}_1 + \vec{r}_5
+\end{equation}
+
+Reorganizando:
+\begin{equation}
+\vec{r}_3 + \vec{r}_4 + \vec{r}_5 = \vec{b}, \quad \text{donde } \vec{b} = -\vec{r}_1 - \vec{r}_2
+\end{equation}
+
+Cada vector se expresa en coordenadas cartesianas, considerando que $\theta_3$ es el ángulo del cuerpo rígido CE respecto al eje horizontal:
+\begin{align}
+\vec{r}_3 &= r_3 \begin{bmatrix} \cos\theta_3 \ \sin\theta_3 \end{bmatrix}, &
+\vec{r}_4 &= r_4 \begin{bmatrix} \sin\theta_3 \ -\cos\theta_3 \end{bmatrix}, \\
+\vec{r}_5 &= r_5 \begin{bmatrix} -\cos\theta_3 \ -\sin\theta_3 \end{bmatrix}
+\end{align}
+
+Sumando estos vectores obtenemos:
+\begin{equation}
+\vec{b} = (r_3 - r_5) \begin{bmatrix} \cos\theta_3 \ \sin\theta_3 \end{bmatrix} + r_4 \begin{bmatrix} \sin\theta_3 \ -\cos\theta_3 \end{bmatrix}
+\end{equation}
+
+\textbf{Solución analítica} \\
+
+Separando en componentes $x$ e $y$ del vector $\vec{b}$:
+\begin{align}
+b_x &= r_4 \sin\theta_3 + (r_3 - r_5) \cos\theta_3 \
+b_y &= -r_4 \cos\theta_3 + (r_3 - r_5) \sin\theta_3
+\end{align}
+
+Despejando $\theta_3$ de manera analítica:
+\begin{equation}
+\theta_3 = \tan^{-1} \left( \frac{(r_3 - r_5)b_y + b_x}{(r_3 - r_5)b_x - b_y} \right)
+\end{equation}
+
+\subsubsection{Análisis de velocidad}
+
+El análisis de velocidad permite determinar las velocidades angulares y lineales de los eslabones, especialmente la velocidad angular del cuerpo rígido CE y la velocidad del punto P.
+
+\begin{equation}
+\vec{v}_3 + \vec{v}_4 + \vec{v}_5 = \vec{v}_b = -\vec{v}_2
+\end{equation}
+
+Expresando cada vector de velocidad en función de las velocidades angulares:
+\begin{align}
+\vec{v}_2 &= r_2 \omega_2 \begin{bmatrix} -\sin\theta_2 \ \cos\theta_2 \end{bmatrix}, \\
+\vec{v}_3 &= r_3 \omega_3 \begin{bmatrix} -\sin\theta_3 \ \cos\theta_3 \end{bmatrix}, \\
+\vec{v}_4 &= r_4 \omega_3 \begin{bmatrix} \cos\theta_3 \ \sin\theta_3 \end{bmatrix}, \\
+\vec{v}_5 &= r_5 \omega_3 \begin{bmatrix} \sin\theta_3 \ -\cos\theta_3 \end{bmatrix}
+\end{align}
+
+Resolviendo en componentes se obtiene el valor de $\omega_3$.
+
+\subsubsection{Análisis de aceleración}
+
+Se realiza la derivación de las velocidades para obtener las aceleraciones lineales de cada eslabón:
+
+\begin{equation}
+\vec{a}_3 + \vec{a}_4 + \vec{a}_5 = \vec{a}_b = -\vec{a}_2
+\end{equation}
+
+Donde cada aceleración tiene componentes tangenciales y centrípetas:
+\begin{align}
+\vec{a}_2 &= r_2 \alpha_2 \begin{bmatrix} -\sin\theta_2 \ \cos\theta_2 \end{bmatrix} - r_2 \omega_2^2 \begin{bmatrix} \cos\theta_2 \ \sin\theta_2 \end{bmatrix}, \\
+\vec{a}_3 &= r_3 \alpha_3 \begin{bmatrix} -\sin\theta_3 \ \cos\theta_3 \end{bmatrix} - r_3 \omega_3^2 \begin{bmatrix} \cos\theta_3 \ \sin\theta_3 \end{bmatrix}, \\
+\vec{a}_4 &= r_4 \alpha_3 \begin{bmatrix} \cos\theta_3 \ \sin\theta_3 \end{bmatrix} - r_4 \omega_3^2 \begin{bmatrix} -\sin\theta_3 \ \cos\theta_3 \end{bmatrix}, \\
+\vec{a}_5 &= r_5 \alpha_3 \begin{bmatrix} \sin\theta_3 \ -\cos\theta_3 \end{bmatrix} - r_5 \omega_3^2 \begin{bmatrix} \cos\theta_3 \ \sin\theta_3 \end{bmatrix}
+\end{align}
+
+\subsubsection{Análisis cinético}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/CINETICA1.png}
+\caption{Mecanismo de cinco barras accionado por el momento M2}
+\label{fig:cinmatica2}
+\end{center}
+\end{figure}
+
+Se incluye la rotación de los eslabones y el desplazamiento del punto P:
+
+\begin{equation}
+T = \frac{1}{2} I_2 \omega_2^2 + \frac{1}{2} I_3 \omega_3^2 + \frac{1}{2} m_4 v_P^2 + \frac{1}{2} I_4 \omega_3^2
+\end{equation}
+
+Donde:
+\begin{itemize}
+\item $I_i$: momentos de inercia de los eslabones alrededor de su centro de masa.
+\item $v_P$: velocidad absoluta del punto extremo P.
+\end{itemize}
+
+\textbf{Ecuaciones de equilibrio dinámico del mecanismo de cinco barras} \\
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/CINETICA2.png}
+\caption{Diagramas de cuerpo libre para eslabones sometidos a fuerzas a lo largo del eslabón en un mecanismo de cinco barras.}
+\label{fig:cinmatica3}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/CINETICA3.png}
+\caption{Diagramas de cuerpo libre para eslabones sometidos a fuerzas normales al eslabón en un mecanismo de cinco barras}
+\label{fig:cinmatica2}
+\end{center}
+\end{figure}
+
+En esta sección se consideran las fuerzas de inercia significativas que actúan sobre los eslabones, de acuerdo con el modelo desarrollado en la Sección 3.5.4 del texto de referencia. Se asume que no hay fuerzas de fricción y que el sistema tiene un actuador lineal fijo en longitud en la barra vertical (Eslabón 5).
+
+\textbf{Eslabón 2:}
+\begin{align}
+F_{12}^{\eta} + F_{32}^{\eta} + P_2^{\eta} &= 0 \\
+-r_2 F_{12}^{\eta} - M_2 + M_2^i - r_{c2} P_2^{\eta} &= 0 \\
+F_{12}^{\eta} &= \frac{-M_2 + M_2^i - r_{c2} P_2^{\eta}}{r_2} \\
+F_{32}^{\eta} &= -P_2^{\eta} - F_{12}^{\eta}
+\end{align}
+
+\textbf{Eslabón 3:} (sin reacciones normales si no hay fricción)
+
+\textbf{Eslabón 4 (cuerpo CE):}
+\begin{align}
+F_{34}^{\eta} - F_{54}^{\eta} + P_4^{\eta} - P_4 &= 0 \\
+-r_{c3} F_{34}^{\eta} + M_4^i - r_{c4} P_4^{\eta} + M_{54} + r_{D4} P_4 &= 0 \\
+F_{34}^{\eta} &= \frac{M_{54} + M_4^i - r_{c4} P_4^{\eta} + r_{D4} P_4}{r_4} \\
+F_{54}^{\eta} &= P_4^{\eta} + F_{34}^{\eta} - P_4
+\end{align}
+
+\textbf{Eslabón 5 (barra DE):}
+\begin{align}
+-F_{15}^{\eta} + P_5^{\eta} &= 0 \\
+M_5^i - r_{c5} P_5^{\eta} - M_{54} &= 0 \\
+M_{54} &= M_5^i - r_{c5} P_5^{\eta} \\
+F_{15}^{\eta} &= P_5^{\eta}
+\end{align}
+
+\textbf{Análisis de fuerzas longitudinales (dirección )} \\
+
+\textbf{Eslabón 2:}
+\begin{equation}
+-F_{12}^{\xi} + F_{32}^{\xi} = 0
+\end{equation}
+
+\textbf{Eslabón 3:}
+\begin{equation}
+-F_{23}^{\xi} + F_{43}^{\xi} - P_3^{\xi} = 0
+\end{equation}
+
+\textbf{Eslabón 4:} No tiene fuerzas longitudinales si no hay fricción.
+
+\textbf{Eslabón 5:}
+\begin{equation}
+F_{15}^{\xi} - F_{54}^{\xi} - P_5^{\xi} = 0
+\end{equation}
+
+\textbf{Cálculo de la fuerza de resistencia } \\
+
+Las fuerzas internas son funciones de la fuerza de resistencia externa . Según el equilibrio de momentos:
+\begin{align}
+F_{34}^{\eta} &= \frac{M_{54} + M_4^i - r_{c4} P_4^{\eta} + r_{D4} P_4}{r_4} \\
+F_{54}^{\eta} &= \frac{M_5^i + M_4^i + (r_4 - r_{c4}) P_4^{\eta} + r_{D4} P_4}{r_4}
+\end{align}
+
+\textbf{Fuerzas internas:}
+\begin{align}
+F_{32}^{\xi} &= -F_{34}^{\xi} \cot(\theta_3 - \theta_2) \\
+F_{32}^{\eta} &= \frac{F_{34}^{\xi}}{\sin(\theta_3 - \theta_2)} \\
+P_4 &= \frac{r_4}{r_{D4}} (M_5^i - M_4^i + r_{c4} P_4^{\eta} - r_{D4} P_4^{\eta} - F_{32}^{\xi} \sin(\theta_3 - \theta_2))
+\end{align}
+
+\textbf{Transformación a coordenadas globales:}
+\begin{equation}
+\vec{F}{12} = -F{12}^{\xi} [\cos\theta_2, \sin\theta_2]^T + F_{12}^{\eta} [-\sin\theta_2, \cos\theta_2]^T
+\end{equation}
+
+Estas expresiones completan el análisis dinámico considerando las fuerzas normales y longitudinales aplicadas a cada eslabón del mecanismo, y permiten calcular las fuerzas internas y externas en función de las condiciones dinámicas del sistema.
+
+\subsection{Acelerómetros}
+
+Un acelerómetro mide aceleración detectando la fuerza inercial que actúa sobre una masa suspendida cuando el sensor está sometido a movimiento \cite{rg_memscap_review, sciencedirect_accelerometer}. Este principio sigue la segunda ley de Newton: 
+
+\begin{equation}
+F = ma
+\label{eq:newton}
+\end{equation}
+
+Las tecnologías principales incluyen:
+
+\begin{itemize}
+    \item \textbf{Capacitivos (MEMS)}: miden el cambio de capacitancia \(C = \varepsilon A / d\) debido al desplazamiento causado por aceleración \cite{rg_memscap_review, sciencedirect_new_capsensor}.
+    \item \textbf{Piezoeléctricos}: generan una carga eléctrica \(Q = d_{33} \cdot F\) al aplicarse una fuerza sobre un cristal \cite{mdpi_piezo_review, nature_pvdf_accelerometer}.
+    \item \textbf{Piezoresistivos}: la aceleración produce deformaciones que alteran la resistencia, medida mediante un puente de Wheatstone \cite{pmc_wearable_piezoresistive}.
+\end{itemize}
+
+La velocidad se calcula integrando la aceleración:
+
+\begin{equation}
+v(t) = \int a(t) \, dt
+\label{eq:velocidad}
+\end{equation}
+
+En el contexto del presente proyecto, se emplean acelerómetros MEMS (Micro Electro Mechanical Systems) debido a su bajo costo, tamaño compacto y facilidad de integración en entornos académicos. Estos sensores son capaces de registrar las oscilaciones generadas por el mecanismo, permitiendo así obtener datos útiles para el análisis espectral y la validación experimental.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{images/principio_acelerometro.png}
+\caption{Esquema básico de funcionamiento de un acelerómetro tipo MEMS capacitivo \cite{sciencedirect_accelerometer}.}
+\label{fig:acelerometro_mem}
+\end{figure}
+
+
+\textbf{Dificultades comunes} 
+
+A pesar de sus ventajas, los acelerómetros MEMS presentan limitaciones que deben considerarse en el diseño experimental:
+
+\begin{itemize}
+\item Deriva en mediciones prolongadas (especialmente al integrar para obtener velocidad o desplazamiento).
+\item Sensibilidad a la orientación y temperatura \cite{ml_temperature_comp2021}.
+\item Saturación en frecuencias altas y presencia de ruido electrónico.
+\end{itemize}
+
+En este proyecto, estos efectos serán minimizados mediante una correcta selección del rango dinámico, uso de filtros digitales y configuración del sensor en el eje dominante de la oscilación.
+
+\section{Transformada de Fourier y análisis en frecuencia}
+
+La transformada de Fourier (TF) permite representar una señal temporal en términos de sus componentes frecuenciales, lo cual es esencial en el análisis de oscilaciones. Esta herramienta es ampliamente utilizada para identificar frecuencias naturales, modos de resonancia y comportamiento dinámico de estructuras sometidas a excitaciones periódicas \cite{Inman2013}.
+
+La expresión general para la TF de una señal continua $x(t)$ es:
+
+\begin{equation}
+X(f) = \int_{-\infty}^{\infty} x(t) e^{-j2\pi f t} \, dt
+\end{equation}
+
+donde $X(f)$ es la representación espectral de $x(t)$, y $f$ corresponde a la frecuencia en hertz.
+
+En aplicaciones prácticas, donde las señales son adquiridas digitalmente por sensores, se emplea la Transformada Discreta de Fourier (DFT), cuya versión computacional eficiente es la Transformada Rápida de Fourier (FFT). La DFT se define como:
+
+\begin{equation}
+X[k] = \sum_{n=0}^{N-1} x[n] e^{-j 2\pi kn / N}, \quad k = 0, 1, ..., N-1
+\end{equation}
+
+Esta transformada permite obtener el espectro de una señal digital $x[n]$ de longitud $N$ y asó obtener información sobre la distribución de energía en el dominio frecuencias para poder caracterizar las oscilaciones generadas por el mecanismo propuesto.
+
+La FFT será aplicada sobre las señales de aceleración adquiridas por sensores MEMS, permitiendo determinar las frecuencias dominantes bajo diferentes condiciones de carga y excitación. Además, esta técnica facilita la construcción de la Función de Respuesta en Frecuencia (FRF), que relaciona las entradas (como la fuerza aplicada) con la salida del sistema (como aceleración), lo que permite evaluar el comportamiento dinámico del banco de pruebas \cite{Brennan2022}.
+
+Parámetros como la selección del tipo de ventana, la frecuencia de muestreo y la longitud de la señal afectan directamente la resolución espectral y la precisión del análisis, por lo que estas serán consideradas cuidadosamente mediante pruebas experimentales ante distintas cargas \cite{Brandt2011}.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

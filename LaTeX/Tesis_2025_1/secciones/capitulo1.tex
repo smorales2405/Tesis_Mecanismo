@@ -1,0 +1,67 @@
+\chapter{REVISIÓN CRÍTICA DE LA LITERATURA}
+
+A pesar de la limitada literatura directamente relacionada con la problemática abordada, se identificaron trabajos que respaldan aspectos clave de la solución propuesta. Estos estudios aportan en el diseño de sistemas oscilantes, el uso de bancos de prueba, la selección de actuadores, la medición dinámica con sensores y el análisis espectral de oscilaciones, proporcionando así una base sólida para el desarrollo de la tesis.
+
+El estudio de las oscilaciones mecánicas es importante para entender y validar la respuesta dinámica de las estructuras. En ese sentido, diversos estudios abordaron la implementación de mecanismos oscilantes en entornos experimentales. Por ejemplo, un trabajo describe un sistema de fatiga torsional basado en un motor y un volante acoplado a un resorte, generando oscilaciones angulares controladas \cite{pena2012}. De forma similar, se propone un banco torsional con excitación mixta DC+AC \cite{patil2013}. Ambos estudios refuerzan la validez de usar mecanismos sencillos para inducir oscilaciones, los cuales destacan por su ser simples y fáciles de replicar, aunque presentan limitaciones en cuanto a flexibilidad de control y escalabilidad para distintas geometrías de prueba.
+
+Asimismo, la existencia de bancos de prueba validados en laboratorio permite tomar como referencia sus diseños estructurales y metodologías de ensayo. Un estudio describe un banco de pruebas para bielas impulsado por un mecanismo de manivela, el cual comparte similitudes cinemáticas con la configuración tipo \emph{inverted slider-crank} \cite{Sevim2022}. Este mecanismo, como se observa en la figura \ref{fig:mec_invvvv}, emplea un motor asíncrono con reducción y usa encoders para registrar velocidad; además plantea un análisis dinámico detallado a través de la ecuación de Lagrange, considerando efectos de masa e inercia, y se valida experimentalmente mediante un codificador óptico. Se evidencia una fluctuación del 20\% en la velocidad del cigüeñal debido a la variación del momento de inercia durante el ciclo, lo que pone en relevancia el comportamiento dinámico no lineal del sistema. Este aporte resulta especialmente valioso para la propuesta, ya que sustenta la pertinencia de emplear mecanismo del tipo \emph{inverted slider-crank} con trayectorias oscilantes generadas mecánicamente. Además, demuestra la viabilidad de su análisis mediante herramientas accesibles como MATLAB. Su principal debilidad es que no aborda el procesamiento de señales ni el uso de sensores adicionales, pero su valor técnico como antecedente de estructura y funcionamiento es clave para la solución propuesta, además de no permitir regulación de sus parámetros de operación como amplitud.
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/inverted.png}
+\caption{Mecanismo experimental de tipo inverted slider-crank}
+\label{fig:mec_invvvv}
+\end{center}
+\end{figure} 
+
+En la literatura también se han explorado sistemas de excitación mediante motores DC acoplados a levas o excéntricos \cite{filippatos2019}, resortes torsionales \cite{patil2013}, y actuadores piezoeléctricos \cite{wang2020}. La tabla \ref{tab:oscilaciones} resume estas configuraciones, donde se destaca que sistemas mecánicos como leva-eje son efectivos en generar oscilaciones periódicas. La fortaleza de estas propuestas es su variedad de principios de actuación, lo que permite compararlas según el requerimiento de frecuencia y amplitud. No obstante, muchas de ellas requieren controladores especializados o estructuras complejas no compatibles con la propuesta y objetivos del proyecto.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{2.2cm}|p{3cm}|p{3cm}|p{3cm}|p{3cm}|}
+\hline
+\textbf{Autor / Referencia} & \textbf{Actuador y configuración mecánica} & \textbf{Tipo de oscilación} & \textbf{Forma de control} & \textbf{Observaciones} \\
+\hline
+Filippatos et al. (2019) \cite{filippatos2019} & Motor DC + leva acoplada a masa o brazo & Angular o lineal periódica & PWM o perfil de leva prediseñado & Bajo costo, frecuencia fija o semivariable \\
+\hline
+Patil y Teodoriu (2013) \cite{patil2013} & Motor DC/AC con resorte torsional acoplado a eje & Angular resonante & Señal senoidal + adquisición de torque & Buen desempeño en frecuencias naturales \\
+\hline
+Wang et al. (2020) \cite{wang2020} & Actuador piezoeléctrico unimorfo/bimorfo sobre viga delgada & Micrométrica transversal & Señal senoidal de alta tensión (HV driver) & Precisión elevada, desplazamientos pequeños \\
+\hline
+Sevim y Uzmay (2022) \cite{Sevim2022} & Motor asíncrono + reductor + mecanismo tipo \emph{inverted slider-crank} & Angular oscilante (±45°) & Velocidad fija + medición mediante encoder & 1 DOF, validación experimental, oscilación mecánica pura \\
+\hline
+\end{tabular}
+\caption{Resumen de configuraciones para la generación de oscilaciones mecánicas}
+\label{tab:oscilaciones}
+\end{table}
+
+También se han presentado mecanismos que permiten ajustar la amplitud de oscilación en bancos de prueba, aunque con distintas limitaciones. Por ejemplo, en un trabajo se propuso una configuración de tipo \emph{slider–crank} con guía móvil, la cual permite variar la amplitud de forma manual al modificar la posición del deslizador dentro del mecanismo \cite{cheng2001adjustable}. Esta estrategia posibilita generar diferentes trayectorias sin alterar la velocidad de entrada, aunque no contempla la incorporación de sensores inerciales ni análisis dinámico. 
+
+Por otro lado, otro estudio modeló un excitador mecánico también basado en un slider–crank, en el que la amplitud se ajusta modificando los parámetros geométricos del sistema, tales como las longitudes de los eslabones o el ángulo de entrada \cite{korendiy2024}. Si bien su enfoque permite analizar distintas condiciones cinemáticas mediante simulación, el estudio no desarrolla un prototipo físico ni considera la adquisición de datos en tiempo real. Adicionalmente, como se observa en la figura \ref{fig:ajust}, se diseñó un banco con un actuador lineal acoplado al mecanismo, que permite modificar electrónicamente la posición del deslizador y, con ello, ajustar la amplitud de oscilación durante la operación \cite{lanets2021}. Aunque este diseño incorpora control activo, está orientado a entornos industriales y no incluye sensado inercial ni procesamiento espectral integrado. En conjunto, estos trabajos muestran diferentes maneras de regular la amplitud mecánica, pero también evidencian vacíos respecto a la integración de elementos de medición y análisis dinámico que permitan caracterizar el comportamiento oscilatorio en tiempo real, especialmente en contextos académicos.
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/amplitudajustable.png}
+\caption{Diagrama de la estructura del mecanismo usado para generar oscilaciones en la máquina vibratoria}
+\label{fig:ajust}
+\end{center}
+\end{figure} 
+
+Debido a esta razón, además de los actuadores, se requieren sensores para caracterizar dinámicamente las oscilaciones, varios autores han demostrado que el uso de acelerómetros es una alternativa confiable para monitorear vibraciones y oscilaciones en sistemas dinámicos. Por ejemplo, un trabajo reciente caracterizó acelerómetros MEMS a bajas frecuencias en una plataforma oscilante, obteniendo alta resolución en la medición de desplazamientos lineales inducidos por un excitador electromagnético tipo altavoz \cite{srokosz2024}. En dicho estudio, se utilizó una bobina móvil montada sobre una base rígida, excitada mediante señales generadas por un DAC de 16 bits, logrando oscilaciones de hasta ±10 mm entre 0.001 y 2000 Hz. Además, se integraron sensores inerciales que retroalimentaban el sistema en tiempo real, permitiendo el ajuste dinámico mediante transformada rápida de Fourier (FFT) para mantener la estabilidad de la oscilación. Como conclusión del trabajo, se validó que varios sensores de bajo costo como MPU6050, MPU6500 y ADXL345 son adecuados para tareas de monitoreo dinámico en entornos estructurales. A pesar de no ser los más avanzados, estos modelos cumplen con criterios de estabilidad operativa, sensibilidad y eficiencia energética, siempre que se apliquen metodologías de prueba y calibración apropiadas.
+
+De forma complementaria, otros estudios han explorado el uso de sensores MEMS en entornos experimentales para análisis vibratorio. Un trabajo validó una plataforma que emplea acelerómetros MEMS de bajo costo para el monitoreo estructural \cite{Cocconcelli2015}, demostrando su aplicabilidad en tareas de diagnóstico dinámico. Destacando su fácil implementación y relación costo-beneficio, aunque también identifican limitaciones asociadas a la resolución, ruido electrónico y necesidad de calibración según el entorno de uso.
+
+
+Por otro lado, el análisis espectral mediante la transformada rápida de Fourier (FFT) se ha consolidado como una herramienta robusta y replicable para el diagnóstico de comportamientos dinámicos. Sin embargo, en escenarios donde se requiere mayor precisión, versiones mejoradas como la e‑FFT (enhanced FFT) han demostrado un rendimiento superior. Estas variantes permiten incrementar la resolución espectral y reducir significativamente el error en la estimación de la frecuencia y amplitud de componentes armónicas, como se evidenció en el monitoreo de rodamientos instrumentados con acelerómetros \cite{Lin2016, Lin2019}. Gracias a técnicas de interpolación y refinamiento espectral, la e‑FFT logró detectar variaciones menores a ±0.5 Hz y mejorar la estimación de amplitud en entornos con ruido, como se observa en la figura \ref{fig:fft}.
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/fftvse-fft.jpg}
+\caption{Comparativa espectro frecuencia con FFT y e-FFT}
+\label{fig:fft}
+\end{center}
+\end{figure} 
+
+Asimismo, la transformada de Fourier ha sido aplicada para reconstruir desplazamientos a partir de señales cuasi‑periódicas, logrando mitigar la deriva acumulada con errores inferiores a ±9 mm \cite{Sabatini2015}. Esta estrategia resulta especialmente útil cuando se requiere caracterizar trayectorias oscilantes con precisión a partir de datos de aceleración. En un contexto educativo, también se ha implementado un sistema experimental de bajo costo que identificó la frecuencia natural (17 Hz) de un mecanismo oscilante utilizando FFT en LabVIEW, demostrando su viabilidad tanto para validación dinámica como para formación técnica \cite{Kumari2021}.
+
+En conjunto, estos enfoques respaldan que la integración de sensores inerciales como acelerómetros MEMS con el análisis espectral mediante FFT constituye una metodología sólida, económica y replicable para el estudio dinámico de mecanismos oscilantes. Esta combinación permite identificar de manera confiable las frecuencias características del sistema y monitorear su comportamiento operativo. En el contexto de la solución propuesta, como se mencionó párrafos atrás, se destaca que sea basado en el tipo inverted slider-crank con amplitud de oscilación ajustable, el cual permite validar la respuesta del mecanismo, siendo además escalable hacia técnicas de mayor resolución como la e‑FFT si se requiere un análisis más detallado en futuras etapas.

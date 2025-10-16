@@ -1,0 +1,120 @@
+%% --------------------------------------------------------------------
+%% Template UTEC Tesis
+%% --------------------------------------------------------------------
+% Este es el archivo que se debe compilar.
+% 
+% Este template ha sido modificado y actualizado por Eduardo Castro y Roosevelt Ubaldo en base a lo trabajado por Víctor Murray, Oscar Ramos y Juan Carlos Barbaran.
+%
+% Última actualización: Mayo, 2022
+
+\documentclass[a4paper,12pt,oneside]{tesisutec}
+
+\selectlanguage{spanish}
+
+%% Paquetes
+\usepackage[utf8]{inputenc}
+\usepackage[square, numbers, comma, sort&compress]{natbib}
+% Libreria de idioma
+\usepackage[spanish]{babel}
+% Libreria para posicionamiento
+\usepackage{float}
+% Librerias para insertar codigos
+\usepackage[spanish,onelanguage,ruled,vlined]{algorithm2e}
+\usepackage{verbatim} 
+% Librería para hipervínculos
+\usepackage{hyperref}
+ % Librería necesaria para arreglar el orden de referencias en overleaf.com
+\usepackage{notoccite}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{pgfgantt}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{array}
+\usepackage{float}
+\usepackage{array}
+\usepackage{makecell}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{ragged2e}
+\renewcommand{\arraystretch}{1.4}
+
+
+
+
+
+% Incluir acá los paquetes adicionales que deseas. 
+% Ubicación de los imágenes.
+\graphicspath{images/}
+
+\makeatletter
+% Reinsert missing \algbackskip
+\def\algbackskip{\hskip-\ALG@thistlm}
+\makeatother
+
+
+\hypersetup{urlcolor=blue, colorlinks=true}
+\begin{document}
+
+\frontmatter
+
+\department{...}
+\degree{... }
+\major{...}
+
+\title{DISEÑO Y CONSTRUCCIÓN DE UN BANCO DE PRUEBAS OSCILANTE PARA VALIDACIÓN EXPERIMENTAL DE SISTEMAS MECATRÓNICOS CON SISTEMA DE ADQUISICIÓN BASADO EN ACELERÓMETROS}
+
+\author{
+    Quispe Javier, Jazmin Coral Elena~\orcid{0009-0008-8532-2215} \\
+    Vera Bonilla, Ángela Milagros~\orcid{0000-0000-0000-0000}
+}
+% Es obligatorio agregar ORCID del alumno
+
+\supervisor{Jara Alegria, Elvis \orcid{0000-0002-5620-7583}} % Es obligatorio agregar ORCID del asesor
+
+\date{2025}
+
+\maketitle
+
+\setstretch{1.5}
+
+
+% \input{encabezados/dedicatoria}
+% \input{encabezados/agradecimientos}
+
+\tableofcontents
+
+\newpage
+
+\listoftables
+
+\newpage
+
+\listoffigures
+
+\addtocontents{toc}{\vspace{1.5em}}
+
+%% ============================================================================
+\mainmatter
+\pagestyle{fancy}
+%\input{secciones/resumen}
+%\input{secciones/abstract}
+\input{secciones/introduccion}
+\input{secciones/capitulo1}
+\input{secciones/capitulo2}
+\input{secciones/capitulo3}
+\input{secciones/capitulo4}
+%% ============================================================================
+\renewcommand{\bibname}{\hfill\Large\bf{REFERENCIAS BIBLIOGRÁFICAS}\hfill}
+
+\bibliographystyle{IEEEtran} % Estableciendo el estilo de citas IEEEtram.
+
+\bibliography{referencias} % Recibe las referencias de IEEE
+
+\input{secciones/anexos}
+
+\end{document}

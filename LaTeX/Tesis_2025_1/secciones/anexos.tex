@@ -1,0 +1,423 @@
+\chapter*{\center \Large ANEXOS} 
+\addcontentsline{toc}{section}{\bfseries ANEXOS} 
+\markboth{ANEXOS}{ANEXOS} 
+
+\section{Requerimientos de diseño generales}
+\label{ANEXO:1}
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{4cm}|>{\raggedright\arraybackslash}p{11cm}|}
+\caption{Requerimientos de diseño generales del banco de pruebas oscilante}
+\label{tab:requerimientos_diseno} \\
+\hline
+\textbf{Requerimiento} & \textbf{Descripción} \\
+\hline
+\endfirsthead
+
+\multicolumn{2}{c}%
+{{\bfseries Continuación de la Tabla \thetable}} \\
+
+\hline
+\textbf{Requerimiento} & \textbf{Descripción} \\
+\hline
+\endhead
+
+\endfoot
+
+\hline
+\endlastfoot
+
+Función principal & El banco debe generar oscilaciones mecánicas controladas con amplitud regulable y permitir la adquisición de datos mediante acelerómetros. \\
+\hline
+Configuración mecánica & El sistema debe tener dos grados de libertad y permitir ajustes de amplitud mediante un mecanismo tipo \textit{inverted slider–crank} con actuador lineal final. \\
+\hline
+Sensado y adquisición & Debe incorporar sensores inerciales MEMS (como el MPU6050) conectados al microcontrolador ESP32, capaz de adquirir datos a 80 Hz o más. \\
+\hline
+Interfaz de usuario & La interfaz (desarrollada en ESP32) debe permitir configurar duración, frecuencia de prueba y visualizar datos en tiempo real. \\
+\hline
+Aplicación académica & El prototipo será de uso en laboratorio educativo. Su diseño debe ser seguro, accesible y confiable para pruebas repetitivas. \\
+\hline
+Durabilidad & Componentes mecánicos y sensores deben resistir al menos 6 meses de uso académico sin mantenimiento intensivo. \\
+\hline
+Mantenimiento & El sistema debe ser de fácil desmontaje, limpieza y reemplazo de sensores o piezas críticas. \\
+\hline
+Condiciones de operación & Uso en ambientes controlados: laboratorio cerrado, temperatura ambiente estable. No expuesto a humedad, viento ni cargas externas pesadas. \\
+
+
+\end{longtable}
+
+
+\section{Estructura de funciones}
+\label{ANEXO:2}
+
+\subsection{Caja negra con entradas y salidas}
+
+\begin{justify}
+Para comprender el funcionamiento del banco de pruebas oscilante desarrollado, se recurre al modelo de caja negra, una herramienta común en ingeniería para representar los sistemas desde el punto de vista funcional, sin detallar su estructura interna. En este modelo, se identifican claramente las entradas, las salidas y el tipo de interacción que mantienen con el sistema.
+
+Cada entrada o salida ha sido clasificada con una letra que indica su naturaleza, según la siguiente nomenclatura:\begin{justify}
+Para comprender el funcionamiento del banco de pruebas oscilante desarrollado, se recurre al modelo de caja negra, una herramienta común en ingeniería para representar los sistemas desde el punto de vista funcional, sin detallar su estructura interna. En este modelo, se identifican claramente las entradas, las salidas y el tipo de interacción que mantienen con el sistema.
+
+Cada entrada o salida ha sido clasificada con una letra que indica su naturaleza, según la siguiente nomenclatura:
+\begin{itemize}
+  \item \textbf{(S)}: Señal — información digital o analógica que circula dentro del sistema, como parámetros configurados desde la interfaz de usuario, datos de sensores o comandos de control.
+  \item \textbf{(E)}: Energía — corresponde a las fuentes eléctricas necesarias para el funcionamiento de los componentes del sistema, como el myRIO o el actuador.
+  \item \textbf{(M)}: Movimiento o mecánico — se refiere a variables físicas, como el desplazamiento del mecanismo, las fuerzas aplicadas o las condiciones de carga.
+\end{itemize}
+\end{justify}
+
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.8cm and 0.8cm, every node/.style={font=\small}]
+  % Caja negra
+  \node[draw, fill=black, text=white, align=center, minimum width=5cm, minimum height=9cm] (caja)
+{Banco de pruebas oscilante \\ con adquisición basada en \\ acelerómetros};
+
+
+  % Entradas
+  \node[left=of caja, yshift=2.8cm, align=right] (e1) {Energía eléctrica  (Alimentación \\ del controlador) (E)};
+
+  \node[left=of caja, yshift=0.8cm, align=right] (e2) {Señal de control para el \\ motor (S)};
+
+  \node[left=of caja, yshift=-1.5cm,align=right] (e3) {Posicion de actuador \\ lineal (M)};
+
+\node[left=of caja, yshift=-3.2cm,align=right] (e4) {Aceleración angular \\ de la base (S)};
+
+  % Salidas
+  \node[right=of caja, yshift=2.8cm] (s1) {Oscilación generada (M)};
+  \node[right=of caja, yshift=1.2cm] (s2) {Señales de aceleración (S)};
+  \node[right=of caja, yshift=-0.6cm] (s3) {Frecuencia medida (S)};
+  \node[right=of caja, yshift=-2.2cm] (s5) {Curva espectral (S)};
+  
+
+  % Flechas
+\foreach \i in {1,...,4}
+\draw[->] (e\i) -- (caja.west|-e\i);
+\foreach \i in {1,2,3,5}
+\draw[->] (caja.east|-s\i) -- (s\i);
+
+\end{tikzpicture}
+\caption{Caja negra con entradas y salidas del banco de pruebas oscilante}
+\label{fig:caja_negra_banco}
+\end{figure}
+
+
+
+La Figura~\ref{fig:caja_negra_banco} representa de manera esquemática el sistema bajo estudio. En cuanto a las entradas, el banco requiere una fuente de alimentación eléctrica, señales de configuración y condiciones físicas impuestas sobre el mecanismo, como la carga o el actuador lineal. Estas entradas permiten definir la duración de la prueba, la frecuencia de oscilación y la amplitud deseada.
+
+Respecto a las salidas, el sistema entrega datos relacionados con el comportamiento dinámico del mecanismo: señales de aceleración obtenidas mediante sensores MEMS, la frecuencia y amplitud resultantes, así como la correspondiente curva espectral calculada. Estos datos son visualizados y exportados para su análisis en tiempo real o posterior.
+
+Este modelo de caja negra facilita la comprensión del flujo de energía, señales e interacción mecánica dentro del sistema, permitiendo un enfoque modular y replicable en futuros desarrollos experimentales.
+
+
+\subsection{Estructura de funciones global}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1.1\textwidth]{images/vdi.jpg}
+\caption{Estructura de funciones global}
+\label{fig:estructura_funciones_banco}
+\end{figure}
+
+
+El sistema representado en la Figura~\ref{fig:estructura_funciones_banco} 
+ muestra la interacción entre diversos subsistemas diseñados para generar, medir y procesar oscilaciones mecánicas controladas. En primer lugar, el módulo de sensado capta la respuesta dinámica del sistema mediante señales que registran el comportamiento del mecanismo en movimiento. Estas señales representan la aceleración experimentada por el conjunto mecánico y permiten obtener una representación precisa del fenómeno oscilatorio bajo condiciones de prueba definidas.
+
+La información captada por el sensor es recibida por un entorno de interfaz que permite al usuario configurar ciertos parámetros del sistema. A través de esta interfaz, es posible establecer condiciones específicas para cada ensayo, controlar el inicio y la detención del proceso, así como visualizar las variables dinámicas en tiempo real. Este entorno ha sido pensado para favorecer la interacción del estudiante con el sistema físico, permitiendo una experiencia directa con la configuración y supervisión de pruebas dinámicas.
+
+Una vez adquiridas, las señales pasan por un módulo de procesamiento que mejora la calidad de los datos al filtrar posibles perturbaciones o ruidos externos. Este subsistema también transforma la información en un formato más claro y útil para el análisis posterior, permitiendo observar tendencias, identificar comportamientos oscilatorios dominantes y registrar los resultados de cada prueba de forma estructurada. También se incluyen protecciones eléctricas que garantizan la integridad del sistema durante la operación.
+
+La energía para el funcionamiento del sistema se distribuye a través de un circuito regulado que garantiza niveles seguros de alimentación para cada uno de los módulos. Este subsistema incluye protecciones que evitan daños en caso de sobrecarga o mal funcionamiento, asegurando un entorno confiable y seguro para el desarrollo de pruebas continuas. La arquitectura energética fue diseñada para ser estable, autónoma y adecuada para sesiones prácticas dentro de laboratorios educativos.
+
+La señal de control emitida por el sistema se dirige a un mecanismo de accionamiento que transforma la entrada eléctrica en un movimiento periódico. Este movimiento se transfiere hacia el conjunto mecánico, generando una oscilación controlada cuyo comportamiento puede ser modificado en función de los parámetros de entrada. De este modo, es posible observar cómo responde el sistema ante distintas condiciones de operación, lo cual es clave para evaluar su desempeño estructural y dinámico.
+
+El conjunto mecánico, por su parte, está formado por una estructura diseñada para reproducir un movimiento oscilante con solo 2 grados de libertad. Asimismo, su última articulación prismática permite regular la amplitud de la oscilación del mecanismo.
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Elaboración de alternativas}
+
+Con el objetivo de definir la configuración óptima del banco de pruebas oscilante, se plantearon tres alternativas combinando distintos componentes para cumplir con las funciones clave del sistema. Estas combinaciones se basaron en la matriz morfológica de la tabla~\ref{tab:matriz_morfologica}, donde se establecen opciones viables para cada función del sistema. A continuación, se detallan las alternativas propuestas:
+
+\begin{itemize}
+    \item \textbf{Alternativa 1 (Propuesta final en esta tesis):} \\
+    1C - 2A - 3B - 4A - 5A - 6A
+
+    \item \textbf{Alternativa 2:} \\
+    1B - 2A - 3A - 4A - 5C - 6C
+
+    \item \textbf{Alternativa 3:} \\
+    1A - 2B - 3B - 4B - 5A - 6A
+\end{itemize}
+
+{\small
+\begin{longtable}[H]{|>{\centering\arraybackslash}m{4cm}|p{3.6cm}|p{3.6cm}|p{3.6cm}|}
+\caption{Matriz morfológica del sistema propuesto con imágenes}
+\label{tab:matriz_morfologica}
+\\ \hline
+\textbf{Función} & \textbf{Opción A} & \textbf{Opción B} & \textbf{Opción C} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Función} & \textbf{Opción A} & \textbf{Opción B} & \textbf{Opción C} \\
+\hline
+\endhead
+
+\hline
+\multicolumn{4}{r}{\textit{}} \\
+\endfoot
+
+\hline
+\endlastfoot
+
+
+(1) Regular amplitud de oscilación &
+\makecell{\includegraphics[width=0.6\linewidth]{images/2.png} \\ Actuador lineal\\ Sawers} &
+\makecell{\includegraphics[width=0.6\linewidth]{images/3.png} \\ Actuador lineal\\ SFU1605} &
+\makecell{\includegraphics[width=0.6\linewidth]{images/propio.png} \\ Diseño propio\\ ajustable}\\
+\hline
+
+(2) Medir aceleración &
+\makecell{\includegraphics[width=0.8\linewidth]{images/3A.jpg} \\ MPU6050} &
+\makecell{\includegraphics[width=0.8\linewidth]{images/3B.jpg} \\ ADXL345} &
+\makecell{\includegraphics[width=0.8\linewidth]{images/3C.jpeg} \\ ISM330DHCX} \\
+\hline
+
+(3) Controlador de adquisición &
+\makecell{\includegraphics[width=0.6\linewidth]{images/4A.jpg} \\ NI myRIO} &
+\makecell{\includegraphics[width=0.8\linewidth]{images/Imagen1.jpg} \\ ESP32} &
+\makecell{\includegraphics[width=0.8\linewidth]{images/4C.jpeg} \\ Raspberry Pi Pico} \\
+\hline
+
+(4) Filtrado de señal &
+\makecell{Filtro \\ pasa-banda} &
+\makecell{Filtro de Kalman} &
+\makecell{Ventana móvil} \\
+\hline
+
+(5) Interfaz de usuario &
+\makecell{ESP32} &
+\makecell{MATLAB GUI} &
+\makecell{LabView} \\
+\hline
+
+
+
+\end{longtable}
+}
+
+
+\subsection{Comparación de alternativas}
+
+Para seleccionar la alternativa más adecuada, se evaluaron las opciones propuestas según los criterios técnicos definidos en la Tabla~\ref{tab:criterios_tecnicos}. 
+
+\begin{table}[H]
+    \centering
+
+    \begin{tabular}{|p{5cm}|p{9.5cm}|}
+        \hline
+        \textbf{Criterio} & \textbf{Descripción} \\
+        \hline
+        Tamaño & Volumen físico ocupado por el sistema en el laboratorio. \\
+        \hline
+        Robustez & Capacidad del sistema para mantener su funcionamiento bajo condiciones dinámicas (vibraciones, variaciones de carga). \\
+        \hline
+        Consumo energético & Energía eléctrica utilizada durante una jornada de pruebas. \\
+        \hline
+        Precisión del sensado & Exactitud y estabilidad de los datos adquiridos por los sensores de aceleración. \\
+        \hline
+        Disponibilidad & Facilidad de conseguir los componentes en el mercado local y tiempo de adquisición. \\
+        \hline
+        Facilidad de integración & Facilidad para ensamblar, montar y configurar el sistema completo. \\
+        \hline
+        Compatibilidad educativa & Nivel de familiaridad y facilidad de uso del sistema para fines de enseñanza y aprendizaje. \\
+        \hline
+    \end{tabular}
+    \caption{Descripción de criterios técnicos}
+        
+    \label{tab:criterios_tecnicos}
+\end{table}
+
+En la tabla~\ref{tab:comparacion_alternativas}, se observa la comparación entre cada alternativa y a cada criterio se le asignó un peso (g) de importancia de 1 a 4 y a cada alternativa un puntaje (p) entre 1 y 4. Se multiplicó cada puntaje por su peso (gp) y se sumaron los resultados para obtener un valor técnico relativo.
+
+\begin{table}[H]
+    \centering
+
+    \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+        \hline
+        \textbf{Criterio} & \textbf{g} & \textbf{Alt. 1 (p)} & \textbf{gp} & \textbf{Alt. 2 (p)} & \textbf{gp} & \textbf{Alt. 3 (p)} & \textbf{gp} \\
+        \hline
+        Robustez y estabilidad & 5 & 3 & 15 & 2 & 10 & 2 & 10 \\
+        \hline
+        Flexibilidad & 3 & 3 & 9 & 3 & 9 & 3 & 9 \\
+        \hline
+        Facilidad de desarrollo & 3 & 3 & 9 & 2 & 6 & 2 & 6 \\
+        \hline
+        Baja latencia & 5 & 3 & 15 & 2 & 10 & 3 & 15 \\
+        \hline
+        Precisión del sensado & 5 & 3 & 15 & 2 & 10 & 2 & 10 \\
+        \hline
+        Compatibilidad educativa & 4 & 3 & 12 & 3 & 12 & 3 & 12 \\
+        \hline
+        \textbf{Puntaje máximo} & & & \textbf{75} & & \textbf{57} & & \textbf{62} \\
+        \hline
+        \textbf{Valor técnico} & & & \textbf{0.75} & & \textbf{0.57} & & \textbf{0.62} \\
+        \hline
+    \end{tabular}
+    \caption{Comparación de alternativas}
+    
+    \label{tab:comparacion_alternativas}
+\end{table}
+
+Se observa que la alternativa 1 presenta el mayor valor técnico (0.88), debido a su robustez, precisión de sensado, alta disponibilidad y compatibilidad con entornos académicos. Por ello, esta alternativa fue seleccionada para el desarrollo del prototipo experimental del banco de pruebas oscilante.
+
+
+
+
+
+\section{Diagrama de Gantt}
+
+\begin{figure}[H]
+\centering
+\begin{ganttchart}[
+    %time slot unit=week,
+    title label font=\bfseries\footnotesize,
+    title label anchor/.style={below=-1.5ex},
+    bar label font=\small,
+    bar/.append style={draw=black},
+    x unit=0.6cm,
+    y unit chart=0.5cm,
+    vgrid,
+    hgrid,
+    title/.style={fill=gray!20},
+    progress label text={}
+]{1}{16}
+    \gantttitlelist{1,...,16}{1} \\
+
+    % Fase inicial: revisión, ideas, objetivos
+    \ganttgroup[bar/.append style={fill=gray!30}]{Fase inicial y planificación}{1}{5} \\
+    \ganttbar[bar/.append style={fill=gray!20}]{Revisión bibliográfica}{1}{2} \\
+    \ganttbar[bar/.append style={fill=gray!40}]{Ideación del sistema}{2}{3} \\
+    \ganttbar[bar/.append style={fill=gray!50}]{Formulación de objetivos y alcances}{3}{4} \\
+    \ganttbar[bar/.append style={fill=gray!60}]{Esquema general del documento}{4}{5} \\
+
+    % Capítulo 1: Introducción
+    \ganttgroup[bar/.append style={fill=orange!50}]{Capítulo 1: Introducción}{6}{7} \\
+    \ganttbar[bar/.append style={fill=orange!40}]{Borrador}{6}{6} \\
+    \ganttbar[bar/.append style={fill=orange!60}]{Revisión y correcciones}{7}{7} \\
+
+    % Capítulo 2: Marco Teórico
+    \ganttgroup[bar/.append style={fill=teal!50}]{Capítulo 2: Marco Teórico}{8}{13} \\
+    \ganttbar[bar/.append style={fill=teal!40}]{Borrador}{8}{9} \\
+    \ganttbar[bar/.append style={fill=teal!60}]{Revisión interna}{10}{11} \\
+    \ganttbar[bar/.append style={fill=teal!80}]{Revisión final}{12}{13} \\
+
+    % Capítulo 3: Metodología
+    \ganttgroup[bar/.append style={fill=blue!50}]{Capítulo 3: Metodología}{12}{16} \\
+    \ganttbar[bar/.append style={fill=blue!40}]{Borrador}{12}{14} \\
+    \ganttbar[bar/.append style={fill=blue!60}]{Revisión y versión final}{15}{16} \\
+
+    % Línea de progreso actual (semana 11)
+    \ganttmilestone[inline=false, milestone label font=\scriptsize\bfseries,
+        milestone label node/.append style={left=4pt},
+        milestone label text={\scriptsize Semana actual}
+    ]{}{11}
+
+\end{ganttchart}
+\caption{Cronograma de redacción del informe}
+\label{fig:avance_general_cap1a3}
+\end{figure}
+
+
+
+
+\section{Tabla de información}
+
+\begin{longtable}{|p{3cm}|p{2cm}|p{6cm}|p{3cm}|}
+    \hline
+    \textbf{Revista Científica} & \textbf{Cuartil} & \textbf{Información Relevante} & \textbf{Fuente} \\
+    \hline
+    \endfirsthead
+
+    \hline
+    \textbf{Revista Científica} & \textbf{Cuartil} & \textbf{Información Relevante} & \textbf{Fuente} \\
+    \hline
+    \endhead
+
+    The Journal of Adhesion & Q2 & Analiza experimentalmente la respuesta dinámica de acelerómetros montados con adhesivos estructurales, destacando el impacto del tipo de adhesivo en el rendimiento mediante análisis espectral usando transformada de Fourier. & Cocconcelli, M. y Spaggiari, A. (2015). Mounting of Accelerometers with Structural Adhesives: Experimental Characterization of the Dynamic Response. \\
+    \hline
+
+    Machines & Q2 & Presenta un sistema de medición de vibraciones de bajo costo para entornos industriales, validado mediante comparación con sistemas de referencia y análisis con transformada rápida de Fourier y método de Welch. & Villarroel, A., Zurita, G., y Velarde, R. (2019). Development of a Low-Cost Vibration Measurement System for Industrial Applications. \\
+    \hline
+
+    IEEE/ASME Transactions on Mechatronics & Q1 & Describe métodos para reducir vibraciones y oscilaciones en un banco de pruebas HiL para dirección, incluyendo modelado dinámico, diseño de control y análisis experimental para mejorar la estabilidad y precisión. & Haas, A., Schrage, B., Menze, G., Sieberg, P. M., Schramm, D. (2024). Oscillation and Vibration Reduction Approaches on a HiL-Steering-Test-Bench. \\
+    \hline
+
+    Journal of Robotics and Control (JRC) & Q2 & Desarrolla una plataforma de aislamiento activo de vibraciones usando elastómeros magnetorreológicos, con modelado y diseño de control para mejorar la estabilidad y reducir vibraciones de baja frecuencia. & Mikhailov, V., Kopylov, A., Kazakov, A. (2024). Modeling and Designing of Active Vibration Isolation Platform. \\
+    \hline
+
+    23rd ABCM International Congress of Mechanical Engineering–COBEM & Q2 & Diseña un banco de pruebas económico usando componentes reciclados para la enseñanza de técnicas de análisis de vibraciones aplicadas a mantenimiento predictivo, facilitando mediciones prácticas para estudiantes. & Lima, I. A. M., y Nunes, M. A. A. (2015). Design and Construction of a Test Bench for Study of Vibration Analysis Techniques Applied to Predictive Maintenance. \\
+    \hline
+
+    European Journal of Engineering Education & Q2 & Analiza la importancia del aprendizaje práctico en laboratorios de ingeniería, enfatizando el rol fundamental de los bancos de pruebas para la formación y la experimentación en ingeniería. & Lima, R., Mesquita, D., y Flores, M. A. (2017). The importance of hands-on learning and the role of engineering education labs. \\
+    \hline
+
+    Procedia Computer Science & Q3 & Presenta una plataforma experimental inteligente para mantenimiento predictivo basada en análisis de vibraciones, integrando sensores y procesamiento para anticipar fallas en sistemas industriales. & Guedes, A. P. C., Neves, M. M., y Maran, A. L. R. (2021). A Smart Experimental Platform for Predictive Maintenance Based on Vibration Analysis. \\
+    \hline
+
+Mechatronics Journal & Q1 & Este estudio analiza la respuesta dinámica de una articulación robótica bajo cargas oscilantes. Los resultados obtenidos permiten comprender el comportamiento del sistema frente a vibraciones mecánicas. & Y. Chen, X. Ma, and Z. Liu, “Dynamic response analysis of a robotic joint under oscillatory loads,” Mechatronics Journal, vol. 45, no. 3, pp. 223–230, 2020. \\
+    \hline
+
+Journal of Biomechatronics & Q2 & Simula la oscilación de miembros robóticos mediante actuadores neumáticos. Los datos obtenidos permiten caracterizar las respuestas dinámicas de sistemas oscilantes en condiciones biológicas. Esto proporciona un marco de comparación para validación de plataformas similares en sistemas mecatrónicos. & K. Fujimoto, M. Takeda, and A. Sato, “Simulation of limb oscillations using pneumatic actuation in biomechatronic testbeds,” Journal of Biomechatronics, vol. 10, no. 2, pp. 112–120, 2021. \\
+    \hline
+
+IEEE Trans. Control Syst. Tech. & Q1 & Evalúa la robustez de controladores a través de un péndulo invertido sometido a oscilaciones. La metodología utilizada ofrece parámetros clave para pruebas bajo excitación controlada. & J. López-Linares, D. Rojas, and F. Méndez, “Control robustness testing via oscillations in an inverted pendulum system,” IEEE Transactions on Control Systems Technology, vol. 30, no. 1, pp. 98–107, 2022. \\
+    \hline
+
+Robotics and Autonomous Systems & Q1 & Diseña una plataforma robótica experimental con oscilaciones adaptativas para probar algoritmos de amortiguamiento. La plataforma validó con éxito estrategias de control robusto. & T. Rahman, S. Ali, and N. Chowdhury, “Adaptive damping in oscillatory robotic systems: Experimental platform design and testing,” Robotics and Autonomous Systems, vol. 118, pp. 43–51, 2019. \\
+    \hline
+
+IEEE/ASME Trans. Mechatronics & Q1 & Presenta una plataforma oscilatoria de 1 DOF equipada con acelerómetros MEMS, validando su capacidad para medir microoscilaciones. Apoya directamente la elección tecnológica del sistema de adquisición en el proyecto propuesto. & H. Lin, J. Wu, and Y. Zhao, “Design and characterization of a 1-dof oscillatory platform using mems accelerometers,” IEEE/ASME Transactions on Mechatronics, vol. 25, no. 3, pp. 1453–1461, 2020. \\
+    \hline
+
+IEEE Trans. Ind. Electronics & Q1 & Evalúa microoscilaciones en actuadores robóticos utilizando acelerómetros piezoeléctricos. El estudio demuestra sensibilidad y fidelidad de estos sensores. Refuerza la elección de acelerómetros como sensores en bancos de prueba dinámicos. & L. Zhang, Y. Chen, and C. Lee, “Experimental evaluation of micro-oscillations in robotic actuators using piezoelectric accelerometers,” IEEE Transactions on Industrial Electronics, vol. 63, no. 6, pp. 3445–3453, 2016. \\
+    \hline
+
+IEEE/ASME Trans. Mechatronics & Q1 & Integra retroalimentación en tiempo real con acelerómetros MEMS y microcontroladores STM32 en sistemas de suspensión activa. Muestra la aplicabilidad de sistemas embebidos en adquisición dinámica, útil para el diseño del sistema propuesto. & S. Jang, H. Kim, and Y. Park, “Real-time oscillation feedback in active suspension systems using stm32 and mems accelerometers,” IEEE/ASME Transactions on Mechatronics, vol. 27, no. 3, pp. 1805–1812, 2022. \\
+    \hline
+
+Int. J. Mechatronics Education & Q3 & Propone un sistema de bajo costo para la enseñanza de oscilaciones mecánicas usando sensores MEMS. Aporta ideas de diseño accesible y educativo para el banco oscilante con fines experimentales. & R. Martínez-Castro, S. Flores et al., “Low-cost experimental setup for teaching mechanical oscillations with mems accelerometers,” International Journal of Mechatronics Education, vol. 12, no. 1, pp. 25–34, 2021. \\
+    \hline
+
+IEEE Transactions on Mechatronics & Q1 & Valida algoritmos de control robusto usando una plataforma de excitación mecánica controlada. El diseño demuestra cómo la excitación puede ser replicada para evaluación de controladores, aplicable a pruebas experimentales similares. & A. Müller, B. Schneider, and M. Hofmann, “Experimental validation of robust control algorithms using controlled mechanical excitation,” IEEE Transactions on Mechatronics, vol. 26, no. 4, pp. 2145–2153, 2021. \\
+    \hline
+
+J. Dyn. Sys., Meas. and Control & Q2 & Emplea excitación mecánica PID para caracterizar parámetros dinámicos en bancos oscilantes. Relevante para el diseño de controladores en el banco de pruebas planteado. & H. Tanaka, K. Saito, and R. Inoue, “Pid-controlled mechanical excitation for system parameter identification in oscillating testbeds,” Journal of Dynamic Systems, Measurement, and Control, vol. 141, no. 2, p. 021005, 2019. \\
+    \hline
+
+Mechatronics & Q1 & Describe un sistema servoaccionado para pruebas de fatiga estructural con cargas oscilantes. El sistema es altamente adaptable y puede ser replicado para validar modelos dinámicos. & C. Delgado, L. Vargas, and J. Méndez, “Adaptive servo-driven excitation system for structural fatigue testing in mechatronic components,” Mechatronics, vol. 68, p. 102364, 2020. \\
+
+    \hline
+
+IJERI & Q3 & Desarrolla un banco oscilante de bajo costo con motores paso a paso para validar sensores MEMS. & R. Morales-Torres, F. Gutiérrez, and D. Ruiz, “Low-cost oscillating bench using stepper motors for experimental validation of mems sensors,” International Journal of Engineering Research and Innovation, vol. 24, no. 1, pp. 33–40, 2022. \\
+    \hline
+
+IEEE/ASME Trans. Mechatronics & Q1 & Diseña un banco oscilatorio 1 DOF para estructuras flexibles. Su enfoque experimental y validación es directamente aplicable a plataformas similares para caracterizar comportamiento dinámico. & L. Chen, J. Zhang, and H. Wei, “Design of a 1-dof oscillatory test bench for dynamic analysis of flexible structures,” IEEE/ASME Transactions on Mechatronics, vol. 26, no. 3, pp. 2120–2129, 2021. \\
+
+    
+    \hline
+
+    \caption{Tabla de Información de revistas}
+\end{longtable}
+

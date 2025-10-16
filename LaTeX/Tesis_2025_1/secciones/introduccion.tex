@@ -1,0 +1,72 @@
+\customchapter{INTRODUCCIÓN} 
+
+\introsection{Presentación del tema de investigación}
+
+Las oscilaciones mecánicas son un fenómeno fundamental en el estudio de la dinámica de sistemas físicos, ya que afectan directamente la estabilidad, seguridad y rendimiento de estructuras y mecanismos en movimiento. Por ello es importante comprender su comportamiento para prevenir fallas estructurales, evitar resonancias indeseadas y asegurar el desempeño confiable de sistemas sometidos a estas excitaciones.
+
+En la ingeniería mecatrónica, este análisis es aplicable en diversas áreas, como robótica, manufactura automatizada, vehículos inteligentes o maquinaria industrial, donde la interacción entre componentes mecánicos, electrónicos y de control requiere que se garantice estabilidad estructural y un desempeño dinámico confiable, razón por la que es importante integrar métodos experimentales que complementen los estudios teóricos y computacionales, para validar criterios de diseño bajo condiciones reales de operación \cite{Mikhailov2024}.
+
+
+\introsection{Descripción de la situación problemática}
+
+En muchas universidades, los proyectos desarrollados por estudiantes se evalúan únicamente mediante simulaciones computacionales, debido a la falta de infraestructura adecuada para realizar ensayos dinámicos. Como consecuencia, los diseños no son expuestos a condiciones reales de funcionamiento, lo que impide identificar fallas estructurales, inestabilidades dinámicas o deficiencias en el control. Esta situación ha sido señalada como una de las causas de desconexión entre la formación teórica y la práctica experimental en ingeniería \cite{DeLaTorre2021,Lima2017}.
+
+A nivel regional, los países de América Latina representan solo el 2.5\,\% de la inversión mundial en investigación y desarrollo (I+D), y el 46\,\% de los investigadores iberoamericanos desarrollan sus actividades en instituciones universitarias \cite{UNESCO2024}. Esto refleja una concentración de la investigación en espacios que, en su mayoría, no cuentan con laboratorios experimentales equipados para realizar pruebas dinámicas sobre sistemas mecatrónicos en condiciones reales.
+
+Algunas propuestas han intentado abordar este problema. Por ejemplo, en un trabajo se desarrolló un banco de pruebas para bielas basado en un mecanismo tipo inverted slider-crank, capaz de generar oscilaciones angulares con un solo grado de libertad \cite{Sevim2022}. Aunque el estudio valida experimentalmente la respuesta dinámica con herramientas accesibles como MATLAB, no integra sensores inerciales ni técnicas de análisis espectral, además de presentar una amplitud fija de oscilación, lo que limita su alcance en entornos educativos donde se busca visualizar y procesar el comportamiento físico en tiempo real. 
+
+Asimismo, en otro proyecto se aplicó la transformada rápida de Fourier (FFT) para identificar frecuencias naturales en mecanismos oscilantes \cite{Kumari2021}, demostrando que el análisis espectral es muy útil. Sin embargo, el procesamiento frecuencial se realiza de forma aislada, sin estar integrado a plataformas que permitan observar en tiempo real. 
+
+Adicionalmente, la mayoría de los bancos de pruebas oscilantes reportados en la literatura no incorporan mecanismos que permitan ajustar mecánicamente la amplitud de oscilación en tiempo real. Sin embargo,un estudio presentó un mecanismo tipo slider–crank ajustable mediante la guía del deslizador, lo que permite modificar la trayectoria angular, y por tanto la amplitud, sin alterar la frecuencia de operación \cite{cheng2001adjustable}. Este enfoque es relevante en entornos educativos, pero no considera la integración de sensores inerciales como acelerómetros ni el análisis frecuencial, lo cual limita su aplicación en un contexto real donde se quiere caracterizar la dinámica del sistema.
+
+En conjunto, esto permitiría analizar dinámicamente el sistema desde fases tempranas, facilitando la detección de problemas funcionales que, según estudios, explican más del 40\% de las fallas en proyectos mecatrónicos durante esta fase \cite{Haas2024}. 
+
+
+\introsection{Formulación del problema}
+
+A partir de esta problemática, se definió la siguiente pregunta:
+
+\begin{quote}
+\textbf{¿Cómo pueden obtenerse datos confiables sobre el comportamiento dinámico de prototipos mecatrónicos en entornos académicos, mediante un sistema que permita aplicar y medir oscilaciones mecánicas controladas?}
+\end{quote}
+
+\introsection{Objetivos de investigación}
+
+\textbf{Objetivo General:}
+
+Diseñar y construir un banco de pruebas oscilante de dos grados de libertad (GDL) que permita validar la respuesta dinámica de componentes mecatrónicos en un entorno académico controlado.
+
+\textbf{Objetivos Específicos}:
+\begin{itemize}
+\item [1.] Diseñar el sistema mecánico y de actuación del banco de pruebas, considerando la posibilidad de ajustar parámetros como frecuencia y amplitud de oscilación.
+
+\item [2.] Desarrollar e implementar un sistema de adquisición y medición de vibraciones basado en acelerómetros, adecuado para entornos académicos.
+
+\item [3.] Desarrollar una interfaz de usuario que permita configurar los parámetros de excitación y visualizar los datos adquiridos en tiempo real.
+
+\item [4.] Caracterizar experimentalmente las oscilaciones generadas bajo diferentes condiciones de carga, frecuencia y amplitud, utilizando técnicas de análisis de Fourier para evaluar la respuesta en frecuencia.
+\end{itemize}
+
+
+
+\introsection{Justificación}
+
+El desarrollo de un banco de pruebas oscilante de 2 grados de libertad (2 DoF) surge como una respuesta a la limitada capacidad que tienen muchas instituciones académicas para validar dinámicamente prototipos mecatrónicos. En la práctica, esto genera una brecha entre la simulación y la prueba física, dificultando la detección oportuna de fallos estructurales o deficiencias en el diseño.
+
+La solución propuesta busca cubrir la necesidad de una plataforma mecánica que permita generar oscilaciones de forma controlada, con una amplitud de oscilación variable y la observación directa de la respuesta dinámica ante diferentes condiciones de carga, frecuencia y amplitud, sin requerir sistemas complejos.
+
+Además, permitirá realizar prácticas experimentales con sensores inerciales y análisis espectral en tiempo real, fortaleciendo la adquisición de datos, procesamiento y diagnóstico dinámico. Esto no solo complementa el aprendizaje teórico, sino que también ofrece a los estudiantes una herramienta concreta para validar y mejorar sus propios diseños.
+
+
+\introsection{Alcance y limitaciones / restricciones}
+
+El sistema propuesto permitirá aplicar oscilaciones mecánicas controladas y registrar la respuesta dinámica mediante sensores inerciales MEMS, como se investigó en los antecedentes. Se empleará un mecanismo tipo \emph{inverted slider-crank} para generar el movimiento, el cual tendrá un ajuste regulable de amplitud de oscilación, junto con un sistema de adquisición basado en acelerómetros montados en puntos clave. Se desarrollará una interfaz de usuario en una pantalla aparte empleando ESP32 el cual permitirá ajustar el tiempo de duración de la prueba, además de incorporar controles básicos como amplitud y frecuencia. 
+
+El análisis se realizará en el dominio de la frecuencia mediante la transformada rápida de Fourier. Además de incluirse control activo para regular su comportamiento. En una etapa posterior, se contempla incorporar sensores adicionales para medir corriente, potencia y fuerza, con el fin de complementar la caracterización dinámica, además de dejarse abierta la posibilidad de emplear IMUS en futuras etapas.
+
+El banco de pruebas no está orientado a aplicaciones industriales. Su diseño está pensado para un entorno académico, con condiciones de prueba seguras. No se considera su uso en exteriores, con cargas elevadas o bajo perturbaciones ambientales severas.
+
+Las condiciones como temperatura o humedad no serán monitoreadas ni controladas, asumiendo que su efecto es mínimo para los fines educativos propuestos. Finalmente, la plataforma está destinada a actividades de formación, por lo que su precisión y capacidades estarán alineadas con los requerimientos de laboratorio universitario, no de sistemas industriales.
+
+
+
