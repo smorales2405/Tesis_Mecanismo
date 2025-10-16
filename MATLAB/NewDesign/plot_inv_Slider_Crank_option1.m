@@ -7,7 +7,7 @@ function plot_inv_Slider_Crank_option1(rA,rB,rC,rD,rE,rP,rP_v,c_current,c_min,c_
     plot(nan), xlabel('x (m)'), ylabel('y (m)');
     title({'Five-Bar Inverted Slider-Crank'});
     
-    % Add point labels
+    %% Add point labels
     text(rA(1), rA(2)-1.5*s,'A','HorizontalAlignment','center'); 
     text(rD(1), rD(2)-1.5*s,'D','HorizontalAlignment','center');
     grid on; hold on;
@@ -17,14 +17,24 @@ function plot_inv_Slider_Crank_option1(rA,rB,rC,rD,rE,rP,rP_v,c_current,c_min,c_
     rectangle('Position', [rA(1)-1, rA(2)-0.5, ground_width+2, 0.5], ...
               'FaceColor', [0.7 0.7 0.7], 'EdgeColor', 'k', 'LineWidth', 1);
     
-    % Plot links
-    % Link AB (Crank)
-    plot([rA(1) rB(1)],[rA(2) rB(2)],'Color',LinkColor, 'LineWidth', 3);
-    text(rB(1), rB(2)+s,'B','HorizontalAlignment','center');
+    %% Plot links as rectangular bars
+    % BARRA AB (Crank) - Rectangular gris
+    bar_width_AB = 0.25;  % Ancho de la barra AB
+    angle_AB = atan2(rB(2)-rA(2), rB(1)-rA(1));
+    e_AB = [cos(angle_AB); sin(angle_AB)];
+    e_perp_AB = [-sin(angle_AB); cos(angle_AB)];
+    length_AB = norm([rB(1)-rA(1); rB(2)-rA(2)]);
     
-    % Link BC (Coupler)
-    plot([rB(1) rC(1)],[rB(2) rC(2)],'Color',LinkColor, 'LineWidth', 2.5);
-    text(rC(1), rC(2)+s,'C','HorizontalAlignment','center');
+    corner1_AB = rA - (bar_width_AB/2)*e_perp_AB;
+    corner2_AB = rA + length_AB*e_AB - (bar_width_AB/2)*e_perp_AB;
+    corner3_AB = rA + length_AB*e_AB + (bar_width_AB/2)*e_perp_AB;
+    corner4_AB = rA + (bar_width_AB/2)*e_perp_AB;
+    
+    AB_x = [corner1_AB(1), corner2_AB(1), corner3_AB(1), corner4_AB(1), corner1_AB(1)];
+    AB_y = [corner1_AB(2), corner2_AB(2), corner3_AB(2), corner4_AB(2), corner1_AB(2)];
+    patch(AB_x, AB_y, [0.6 0.6 0.6], 'EdgeColor', 'k', 'LineWidth', 1.5);
+    
+    text(rB(1), rB(2)+s,'B','HorizontalAlignment','center');
     
     %% TELESCOPIC ACTUATOR DE (Similar to Inventor design)
     % Dimensions for the telescopic cylinder
@@ -111,43 +121,99 @@ function plot_inv_Slider_Crank_option1(rA,rB,rC,rD,rE,rP,rP_v,c_current,c_min,c_
     %% Platform and connections
     text(rE(1), rE(2)+s,'E','HorizontalAlignment','center');
     
-    % Link EP (Platform) - Green
-    plot([rE(1) rP(1)],[rE(2) rP(2)],'Color',[0.2 0.6 0.2], 'LineWidth', 3);
+    % Calcular ángulo y vectores de la barra EP
+    angle_EP = atan2(rP(2)-rE(2), rP(1)-rE(1));
+    e_along = [cos(angle_EP); sin(angle_EP)];
+    e_perp = [-sin(angle_EP); cos(angle_EP)];
+    bar_length = norm([rP(1)-rE(1); rP(2)-rE(2)]);
+    
+    % Dimensiones del perfil EP
+    main_bar_height = 0.35;    % Altura de la barra principal
+    rail_height = 0.25;         % Altura del riel inferior
+    rail_gap = 0.35;           % Separación entre barra principal y riel
+    
+    % 1. BARRA PRINCIPAL (gris claro) - parte superior
+    % Posicionar desde E hacia P
+    main_bottom_left = rE - (main_bar_height/2)*e_perp;
+    corner1_main = main_bottom_left;
+    corner2_main = main_bottom_left + bar_length*e_along;
+    corner3_main = main_bottom_left + bar_length*e_along + main_bar_height*e_perp;
+    corner4_main = main_bottom_left + main_bar_height*e_perp;
+    
+    main_x = [corner1_main(1), corner2_main(1), corner3_main(1), corner4_main(1), corner1_main(1)];
+    main_y = [corner1_main(2), corner2_main(2), corner3_main(2), corner4_main(2), corner1_main(2)];
+    patch(main_x, main_y, [0.75 0.75 0.75], 'EdgeColor', 'k', 'LineWidth', 1.5);
+    
+    % 2. RIEL INFERIOR (gris medio) - FIJO en la barra PE
+    % El riel es parte fija de la estructura PE (no se mueve con C)
+    rail_length = 12.5;  % Longitud del riel en metros
+    rail_start_distance = 10;  % Distancia desde E donde empieza el riel
+    
+    % El riel empieza a cierta distancia desde E
+    rail_start_point = rE + rail_start_distance*e_along;
+    
+    % Posicionar el riel DEBAJO de la barra (invertir el sentido de e_perp)
+    % La barra principal va desde main_bottom_left hacia arriba
+    % El riel debe ir DEBAJO, así que restamos más
+    rail_top_left = rail_start_point + (main_bar_height/2+rail_gap)*e_perp;
+    
+    % Esquinas del riel (construyendo hacia ABAJO desde rail_top_left)
+    corner1_rail = rail_top_left;
+    corner2_rail = rail_top_left + rail_length*e_along;
+    corner3_rail = rail_top_left + rail_length*e_along - rail_height*e_perp;
+    corner4_rail = rail_top_left - rail_height*e_perp;
+    
+    rail_x = [corner1_rail(1), corner2_rail(1), corner3_rail(1), corner4_rail(1), corner1_rail(1)];
+    rail_y = [corner1_rail(2), corner2_rail(2), corner3_rail(2), corner4_rail(2), corner1_rail(2)];
+    patch(rail_x, rail_y, [0.55 0.55 0.55], 'EdgeColor', 'k', 'LineWidth', 1.5);
+    
+    % Agregar ranuras/slots en el riel
+    num_slots = floor(rail_length / 1.5);
+    for i = 1:num_slots
+        slot_pos = rail_start_point + (i * rail_length/(num_slots+1))*e_along;
+        slot_top = slot_pos + (main_bar_height/2)*e_perp + rail_gap*e_perp;
+        slot_bottom = slot_top - (rail_height - 0.06)*e_perp;
+        plot([slot_top(1) slot_bottom(1)], [slot_top(2) slot_bottom(2)], ...
+             'Color', [0.35 0.35 0.35], 'LineWidth', 1.2);
+    end
+    
     text(rP(1), rP(2)+s,'P','HorizontalAlignment','center');
     
     % Plot slide base at C
     % plot([rB(1) rBS(1)],[rB(2) rBS(2)],'Color',LinkColor, 'LineWidth', 2);
     % plot([rBS(1) rL1(1)],[rBS(2) rL1(2)],'Color',LinkColor, 'LineWidth', 2);
     % plot([rBS(1) rL2(1)],[rBS(2) rL2(2)],'Color',LinkColor, 'LineWidth', 2);
-    % Dimensiones del rectángulo del slider
-slider_length = 1.2;  % Longitud del rectángulo a lo largo de PE
-slider_width = 0.6;   % Ancho del rectángulo perpendicular a PE
 
-% Calcular el ángulo de la barra EP para orientar el slider
-angle_EP = atan2(rP(2)-rE(2), rP(1)-rE(1));
-
-% Vectores unitarios a lo largo y perpendicular a EP
-e_along = [cos(angle_EP); sin(angle_EP)];
-e_perp = [-sin(angle_EP); cos(angle_EP)];
-
-% Calcular las esquinas del rectángulo centrado en C
-corner1 = rC - (slider_length/2)*e_along - (slider_width/2)*e_perp;
-corner2 = rC + (slider_length/2)*e_along - (slider_width/2)*e_perp;
-corner3 = rC + (slider_length/2)*e_along + (slider_width/2)*e_perp;
-corner4 = rC - (slider_length/2)*e_along + (slider_width/2)*e_perp;
-
-% Dibujar el rectángulo del slider (verde)
-slider_x = [corner1(1), corner2(1), corner3(1), corner4(1), corner1(1)];
-slider_y = [corner1(2), corner2(2), corner3(2), corner4(2), corner1(2)];
-patch(slider_x, slider_y, [0.2 0.8 0.2], 'EdgeColor', 'k', 'LineWidth', 2, 'FaceAlpha', 0.7);
-
-% Dibujar el punto de conexión dentro del slider (rojo)
-plot(rC(1), rC(2), 'o', 'MarkerSize', 6, ...
-     'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'k', 'LineWidth', 2);
-
-text(rC(1), rC(2)+s,'C','HorizontalAlignment','center');
-
+    %% SLIDER en C sobre el riel inferior
+    slider_length = 0.9;
+    slider_height = rail_height+0.2;  % Mismo alto que el riel para que encaje perfectamente
     
+    % Proyectar C sobre la línea EP para saber dónde está sobre la barra
+    vec_EC = [rC(1) - rE(1); rC(2) - rE(2)];
+    projection_length = dot(vec_EC, e_along);
+    C_on_bar = rE + projection_length * e_along;
+    
+    % Calcular centro del slider - debe estar en el centro del riel
+    % El riel empieza en: rail_top_left = punto + (main_bar_height/2+rail_gap)*e_perp
+    % El centro del riel está a: rail_top_left - (rail_height/2)*e_perp
+    % Entonces: centro = punto + (main_bar_height/2 + rail_gap - rail_height/2)*e_perp
+    slider_center = C_on_bar + (main_bar_height/2 + rail_gap - rail_height/2)*e_perp;
+    % Esquinas del slider
+    corner1_slider = slider_center - (slider_length/2)*e_along - (slider_height/2)*e_perp;
+    corner2_slider = slider_center + (slider_length/2)*e_along - (slider_height/2)*e_perp;
+    corner3_slider = slider_center + (slider_length/2)*e_along + (slider_height/2)*e_perp;
+    corner4_slider = slider_center - (slider_length/2)*e_along + (slider_height/2)*e_perp;
+    
+    slider_x = [corner1_slider(1), corner2_slider(1), corner3_slider(1), corner4_slider(1), corner1_slider(1)];
+    slider_y = [corner1_slider(2), corner2_slider(2), corner3_slider(2), corner4_slider(2), corner1_slider(2)];
+    patch(slider_x, slider_y, [0.3 0.7 0.3], 'EdgeColor', 'k', 'LineWidth', 2);
+    
+    % Punto C en el centro del slider
+    % plot(rC(1), rC(2), 'o', 'MarkerSize', 8, ...
+    %      'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'k', 'LineWidth', 2);
+    
+    %text(rC(1), rC(2)+s+0.5,'C','HorizontalAlignment','center');
+
     % Draw sliding connection between C and EP - PERPENDICULAR CONNECTION
     % plot([rC(1) rE(1)], [rC(2) rE(2)], 'g--', 'LineWidth', 1, 'Color', [0.2 0.6 0.2]);
     
@@ -165,14 +231,33 @@ text(rC(1), rC(2)+s,'C','HorizontalAlignment','center');
     % square_y = [square_corner(2), square_corner(2) + square_size*vec_BC_norm(2), ...
     %             rC(2), square_corner(2) + square_size*vec_EC_norm(2), square_corner(2)];
     % plot(square_x, square_y, 'k-', 'LineWidth', 1);
-           
-    % Plot joints on linkage
+    
+
+    %% BARRA BC (Coupler) - Rectangular gris
+    bar_width_BC = 0.25;  % Ancho de la barra BC
+    angle_BC = atan2(rC(2)-rB(2), rC(1)-rB(1));
+    e_BC = [cos(angle_BC); sin(angle_BC)];
+    e_perp_BC = [-sin(angle_BC); cos(angle_BC)];
+    rC2 = slider_center + slider_height/2*e_perp;
+    length_BC = norm([rC2(1)-rB(1); rC2(2)-rB(2)]);
+    
+    corner1_BC = rB - (bar_width_BC/2)*e_perp_BC;
+    corner2_BC = rB + length_BC*e_BC - (bar_width_BC/2)*e_perp_BC;
+    corner3_BC = rB + length_BC*e_BC + (bar_width_BC/2)*e_perp_BC;
+    corner4_BC = rB + (bar_width_BC/2)*e_perp_BC;
+    
+    BC_x = [corner1_BC(1), corner2_BC(1), corner3_BC(1), corner4_BC(1), corner1_BC(1)];
+    BC_y = [corner1_BC(2), corner2_BC(2), corner3_BC(2), corner4_BC(2), corner1_BC(2)];
+    patch(BC_x, BC_y, [0.6 0.6 0.6], 'EdgeColor', 'k', 'LineWidth', 1.5);
+    
+    text(rC(1), rC(2)+s,'C','HorizontalAlignment','center');
+    %% Plot joints on linkage
     plot([rA(1)],...
          [rA(2)],...
          "^",'MarkerSize',6,'MarkerFaceColor',LinkColor,'Color',LinkColor);
-    plot([rB(1) rP(1)],...
-         [rB(2) rP(2)],...
-         'o','MarkerSize',4,'MarkerFaceColor',LinkColor,'Color',LinkColor);
+    plot([rB(1)],...
+         [rB(2)],...
+         'o','MarkerSize',8,'MarkerFaceColor',"k",'Color',"k");
     
     % Highlight sliding joint at C with a square marker
     % plot(rC(1), rC(2), 'square', 'MarkerSize', 10, ...

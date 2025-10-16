@@ -32,7 +32,7 @@ rA = [0; 0]; % ground pin at A (origin)
 rD = FindPos(rA, d, eAD); % ground pin at D
 
 %% Simulation configuration
-tf = 4;      % Set Time in seconds
+tf = 4.0;      % Set Time in seconds
 dt = 0.01;   % Set Sampling time
 t = 0:dt:tf; % Time vector
 
