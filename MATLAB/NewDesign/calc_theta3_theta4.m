@@ -1,4 +1,4 @@
-function [theta3, theta4] = calc_theta3_theta4_option1(rA, rB, rD, rE, b, e)
+function [theta3, theta4] = calc_theta3_theta4(rA, rB, rD, rE, b, e)
 % calc_theta3_theta4_option1
 % Calculates theta3 and theta4 for Option 1 configuration where:
 % - DE is always vertical (theta5 = pi/2)
