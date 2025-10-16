@@ -18,7 +18,7 @@ actuator_mode = 'extend_contract';  % Change this to select mode
 c_initial = 1.5*a;  % Initial length of DE (m)
 c_min = 1*a;      % Minimum length of DE (m)
 c_max = 3*a;      % Maximum length of DE (m)
-c_velocity = 25.0;   % Actuator velocity (m/s) - positive for extension, negative for contraction
+c_velocity = 10.0;   % Actuator velocity (m/s) - positive for extension, negative for contraction
 
 % For fixed mode
 c_fixed = 1.5*a;    % Fixed length when actuator_mode = 'fixed'
@@ -32,7 +32,7 @@ rA = [0; 0]; % ground pin at A (origin)
 rD = FindPos(rA, d, eAD); % ground pin at D
 
 %% Simulation configuration
-tf = 4.0;      % Set Time in seconds
+tf = 3.0;      % Set Time in seconds
 dt = 0.01;   % Set Sampling time
 t = 0:dt:tf; % Time vector
 
@@ -49,9 +49,9 @@ c_length = zeros(size(t)); % Variable length of DE
 
 %% Initialize Crank Motion
 theta2(1) = 0*pi/180;  % Set Crank initial angle
-fth2 = 8*pi;           % Set final theta2 angle
+fth2 = deg2rad(360+45);           % Set final theta2 angle
 w2 = fth2/tf;          % Angular velocity (rad/s)
-for i = 2:tf/dt 
+for i = 2:tf/dt+1 
     theta2(i) = theta2(i-1) + dt*w2;
 end
 

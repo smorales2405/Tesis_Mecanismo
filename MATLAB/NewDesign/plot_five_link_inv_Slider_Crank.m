@@ -76,7 +76,7 @@ function plot_five_link_inv_Slider_Crank(rA,rB,rC,rD,rE,rMidPE,rP,rMidPE_v,c_cur
         rectangle('Position', [rD(1)-inner_cyl_width/2, ...
                                rD(2)+base_height/4+fixed_cylinder_height, ...
                                inner_cyl_width, extension], ...
-                  'FaceColor', [0.8 0.2 0.2], 'EdgeColor', 'k', 'LineWidth', 1.5);
+                  'FaceColor', [0.6 0.6 0.6], 'EdgeColor', 'k', 'LineWidth', 1.5);
         
         % Add some detail lines on the inner cylinder
         if extension > 0.5
@@ -201,7 +201,7 @@ function plot_five_link_inv_Slider_Crank(rA,rB,rC,rD,rE,rMidPE,rP,rMidPE_v,c_cur
     
     slider_x = [corner1_slider(1), corner2_slider(1), corner3_slider(1), corner4_slider(1), corner1_slider(1)];
     slider_y = [corner1_slider(2), corner2_slider(2), corner3_slider(2), corner4_slider(2), corner1_slider(2)];
-    patch(slider_x, slider_y, [0.3 0.7 0.3], 'EdgeColor', 'k', 'LineWidth', 2);
+    patch(slider_x, slider_y, [0.75 0.75 0.75], 'EdgeColor', 'k', 'LineWidth', 2);
          
     %% BARRA BC (Coupler) - Rectangular gris
     bar_width_BC = 0.25;  % Ancho de la barra BC
