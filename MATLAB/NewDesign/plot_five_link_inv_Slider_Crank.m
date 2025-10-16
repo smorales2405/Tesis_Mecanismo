@@ -1,4 +1,4 @@
-function plot_inv_Slider_Crank_option1(rA,rB,rC,rD,rE,rP,rP_v,c_current,c_min,c_max,s,t, LinkColor)
+function plot_five_link_inv_Slider_Crank(rA,rB,rC,rD,rE,rP,rP_v,c_current,c_min,c_max,s,t)
 % plot_inv_Slider_Crank_option1
 % Plots the five-bar mechanism with Option 1 configuration
 % DE is vertical telescopic actuator, EP rotates around E
@@ -179,11 +179,6 @@ function plot_inv_Slider_Crank_option1(rA,rB,rC,rD,rE,rP,rP_v,c_current,c_min,c_
     
     text(rP(1), rP(2)+s,'P','HorizontalAlignment','center');
     
-    % Plot slide base at C
-    % plot([rB(1) rBS(1)],[rB(2) rBS(2)],'Color',LinkColor, 'LineWidth', 2);
-    % plot([rBS(1) rL1(1)],[rBS(2) rL1(2)],'Color',LinkColor, 'LineWidth', 2);
-    % plot([rBS(1) rL2(1)],[rBS(2) rL2(2)],'Color',LinkColor, 'LineWidth', 2);
-
     %% SLIDER en C sobre el riel inferior
     slider_length = 0.9;
     slider_height = rail_height+0.2;  % Mismo alto que el riel para que encaje perfectamente
@@ -207,32 +202,7 @@ function plot_inv_Slider_Crank_option1(rA,rB,rC,rD,rE,rP,rP_v,c_current,c_min,c_
     slider_x = [corner1_slider(1), corner2_slider(1), corner3_slider(1), corner4_slider(1), corner1_slider(1)];
     slider_y = [corner1_slider(2), corner2_slider(2), corner3_slider(2), corner4_slider(2), corner1_slider(2)];
     patch(slider_x, slider_y, [0.3 0.7 0.3], 'EdgeColor', 'k', 'LineWidth', 2);
-    
-    % Punto C en el centro del slider
-    % plot(rC(1), rC(2), 'o', 'MarkerSize', 8, ...
-    %      'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'k', 'LineWidth', 2);
-    
-    %text(rC(1), rC(2)+s+0.5,'C','HorizontalAlignment','center');
-
-    % Draw sliding connection between C and EP - PERPENDICULAR CONNECTION
-    % plot([rC(1) rE(1)], [rC(2) rE(2)], 'g--', 'LineWidth', 1, 'Color', [0.2 0.6 0.2]);
-    
-    % Add perpendicular symbol at C (90° angle indicator)
-    % vec_BC = [rC(1) - rB(1); rC(2) - rB(2)];
-    % vec_EC = [rC(1) - rE(1); rC(2) - rE(2)];
-    % vec_BC_norm = vec_BC / norm(vec_BC);
-    % vec_EC_norm = vec_EC / norm(vec_EC);
-    % 
-    % % Draw small square to indicate 90° angle
-    % square_size = 0.25;
-    % square_corner = rC - square_size * vec_BC_norm - square_size * vec_EC_norm;
-    % square_x = [square_corner(1), square_corner(1) + square_size*vec_BC_norm(1), ...
-    %             rC(1), square_corner(1) + square_size*vec_EC_norm(1), square_corner(1)];
-    % square_y = [square_corner(2), square_corner(2) + square_size*vec_BC_norm(2), ...
-    %             rC(2), square_corner(2) + square_size*vec_EC_norm(2), square_corner(2)];
-    % plot(square_x, square_y, 'k-', 'LineWidth', 1);
-    
-
+         
     %% BARRA BC (Coupler) - Rectangular gris
     bar_width_BC = 0.25;  % Ancho de la barra BC
     angle_BC = atan2(rC(2)-rB(2), rC(1)-rB(1));
@@ -318,11 +288,7 @@ function plot_inv_Slider_Crank_option1(rA,rB,rC,rD,rE,rP,rP_v,c_current,c_min,c_
     rectangle('Position', [rB(1)-bolt_radius_B, rB(2)-bolt_offset_B-bolt_radius_B, ...
                            2*bolt_radius_B, 2*bolt_radius_B], ...
               'Curvature', [1 1], 'FaceColor', [0.3 0.3 0.3], 'EdgeColor', 'k', 'LineWidth', 1);
-    
-    % Highlight sliding joint at C with a square marker
-    % plot(rC(1), rC(2), 'square', 'MarkerSize', 10, ...
-    %      'MarkerFaceColor', [0.8 0.8 0.2], 'MarkerEdgeColor', 'k', 'LineWidth', 2);
-     
+        
     % Trajectory of P
     plot(rP_v(1,:),rP_v(2,:),'.','Color','#D95319', 'MarkerSize', 3); 
     

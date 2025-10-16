@@ -110,7 +110,7 @@ for k = 1:(tf/dt+1)
     rE = FindPos(rD, c_length(k), eDE);
     
     % Find position of C and angle theta4 using Option 1 kinematics
-    [theta3(k), theta4(k)] = calc_theta3_theta4_option1(rA, rB, rD, rE, b, e);
+    [theta3(k), theta4(k)] = calc_theta3_theta4(rA, rB, rD, rE, b, e);
     
     % VERIFICATION: Check that BC is perpendicular to PE
     angle_diff = abs(theta3(k) - theta4(k));
@@ -162,7 +162,7 @@ for k = 1:(tf/dt+1)
     w3_prev = w3; w4_prev = w4; c_vel_prev = c_vel;
     
     % Plot Simulation
-    plot_inv_Slider_Crank_option1(rA,rB,rC,rD,rE,rP,rP_v,c_length(k),c_min,c_max,sp,t(k), LinkColor);
+    plot_five_link_inv_Slider_Crank(rA,rB,rC,rD,rE,rP,rP_v,c_length(k),c_min,c_max,sp,t(k));
     axis([xl xu yl yu]); 
     axis equal
     hold off;
