@@ -36,10 +36,10 @@ tf = 4.0;      % Set Time in seconds
 dt = 0.01;   % Set Sampling time
 t = 0:dt:tf; % Time vector
 
-% Variables to accumulate pos, vel and acc of P
-rP_v = zeros(2,size(t,2)); 
-vP_v = zeros(2,size(t,2)); 
-aP_v = zeros(2,size(t,2)); 
+% Variables to accumulate pos, vel and acc of midpoint of PE
+rMidPE_v = zeros(2,size(t,2)); 
+vMidPE_v = zeros(2,size(t,2)); 
+aMidPE_v = zeros(2,size(t,2)); 
 
 % Vector generation
 theta2 = zeros(size(t));
@@ -94,7 +94,7 @@ LinkColor = [14 103 180]/255;
 f = 1.2;
 xl = -(e/2)*f; xu = (e/2)*f; 
 yl = -(a)*f; yu = (c_max)*f;
-sp = 0.75;
+sp = 0.6;
 
 %% Main Simulation Loop
 figure(1),
@@ -125,8 +125,9 @@ for k = 1:(tf/dt+1)
     
     % Find position of P
     [eEP,nEP] = UnitVector(theta4(k));
+    rMidPE = FindPos(rE, e/2, eEP);
     rP = FindPos(rE, e, eEP);
-    rP_v(:,k) = rP;
+    rMidPE_v(:,k) = rMidPE;
     
     % Velocities (simplified for Option 1)
     % Angular velocity of BC
@@ -140,8 +141,8 @@ for k = 1:(tf/dt+1)
     
     vD = [0;0]; 
     vE = FindVel(vD, c_vel, [0;1]);  % E moves vertically
-    vP = FindVel(vE, e, w4, nEP);
-    vP_v(:,k) = vP;
+    vMidPE = FindVel(vE, e/2, w4, nEP);
+    vMidPE_v(:,k) = vMidPE;
     
     % Accelerations (simplified)
     if k > 1
@@ -155,14 +156,14 @@ for k = 1:(tf/dt+1)
     
     aD = [0;0];
     aE = [0; c_acc];  % E accelerates only vertically
-    aP = FindAcc(aE, e, w4, a4, eEP, nEP);
-    aP_v(:,k) = aP;
+    aMidPE = FindAcc(aE, e/2, w4, a4, eEP, nEP);
+    aMidPE_v(:,k) = aMidPE;
     
     % Store previous values
     w3_prev = w3; w4_prev = w4; c_vel_prev = c_vel;
     
     % Plot Simulation
-    plot_five_link_inv_Slider_Crank(rA,rB,rC,rD,rE,rP,rP_v,c_length(k),c_min,c_max,sp,t(k));
+    plot_five_link_inv_Slider_Crank(rA,rB,rC,rD,rE,rMidPE,rP,rMidPE_v,c_length(k),c_min,c_max,sp,t(k));
     axis([xl xu yl yu]); 
     axis equal
     hold off;
@@ -176,34 +177,35 @@ for k = 1:(tf/dt+1)
 end
 
 %% Plot Results
-% Plot position, velocity and acceleration of P
+% Plot position, velocity and acceleration of midpoint of PE
 figure(2), clf;
-subplot(3,1,1), plot(t,rP_v(1,:),'-','Color',"#1171BE"); grid on; hold on;
-plot(t,rP_v(2,:),'-','Color',"#8516D1");
-ylabel('Position (m)'); title('Position of P'); 
+subplot(3,1,1), plot(t,rMidPE_v(1,:),'-','Color',"#1171BE"); grid on; hold on;
+plot(t,rMidPE_v(2,:),'-','Color',"#8516D1");
+ylabel('Posición (m)'); title('Posición de O (PE)'); 
 legend('$P_x$','$P_y$','interpreter','latex');
 
-subplot(3,1,2), plot(t,vP_v(1,:),'-','Color',"#2FBEEF"); grid on; hold on;
-plot(t,vP_v(2,:),'-','Color',"#D1048B");
-ylabel('Velocity (m/s)'); title('Velocity of P'); 
+subplot(3,1,2), plot(t,vMidPE_v(1,:),'-','Color',"#2FBEEF"); grid on; hold on;
+plot(t,vMidPE_v(2,:),'-','Color',"#D1048B");
+ylabel('Velocidad (m/s)'); title('Velocidad de O (PE)'); 
 legend('$V_x$','$V_y$','interpreter','latex');
 
-subplot(3,1,3), plot(t,aP_v(1,:),'-','Color',"#EDB120"); grid on; hold on;
-plot(t,aP_v(2,:),'-','Color',"#3BAA32"); xlabel('Time (s)'); 
-ylabel('Acceleration (m/s^2)'); title('Acceleration of P'); 
+subplot(3,1,3), plot(t,aMidPE_v(1,:),'-','Color',"#EDB120"); grid on; hold on;
+plot(t,aMidPE_v(2,:),'-','Color',"#3BAA32"); xlabel('Tiempo (s)'); 
+ylabel('Aceleración (m/s^2)'); title('Aceleración de O (PE)'); 
 legend('$A_x$','$A_y$','interpreter','latex');
 
 % Plot angles and actuator length
 figure(3), clf;
-subplot(3,1,1), plot(t, theta3*180/pi); grid on;
-ylabel('Angle (deg)'); title('Angle $\theta_3$ (BC)', 'interpreter','latex');
+subplot(2,1,1), plot(t, rMidPE_v(2,:)); grid on;
+ylabel('Posición (m)'); title('Altura de O');
 
-subplot(3,1,2), plot(t, theta4*180/pi); grid on;
-ylabel('Angle (deg)'); title('Angle $\theta_4$ (EP)', 'interpreter','latex');
+subplot(2,1,2), plot(t, theta4*180/pi,'Color',"#DD5400"); grid on;
+ylabel('Ángulo (deg)'); title('Angulo tangente $\theta_4$ (EP)', 'interpreter','latex');
+xlabel('Tiempo (s)');
 
-subplot(3,1,3), plot(t, c_length, 'r-', 'LineWidth', 2); grid on; hold on;
-plot([0 tf], [c_min c_min], 'k--', 'LineWidth', 1);
-plot([0 tf], [c_max c_max], 'k--', 'LineWidth', 1);
-ylabel('Length (m)'); xlabel('Time (s)');
-title('Actuator Length DE', 'interpreter','latex');
-legend('Length', 'Min', 'Max', 'Location', 'best');
+% subplot(3,1,3), plot(t, c_length, 'r-', 'LineWidth', 2); grid on; hold on;
+% plot([0 tf], [c_min c_min], 'k--', 'LineWidth', 1);
+% plot([0 tf], [c_max c_max], 'k--', 'LineWidth', 1);
+% ylabel('Length (m)'); 
+% title('Actuator Length DE', 'interpreter','latex');
+% legend('Length', 'Min', 'Max', 'Location', 'best');

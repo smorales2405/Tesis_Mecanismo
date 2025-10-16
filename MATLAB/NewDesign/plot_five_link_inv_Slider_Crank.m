@@ -1,4 +1,4 @@
-function plot_five_link_inv_Slider_Crank(rA,rB,rC,rD,rE,rP,rP_v,c_current,c_min,c_max,s,t)
+function plot_five_link_inv_Slider_Crank(rA,rB,rC,rD,rE,rMidPE,rP,rMidPE_v,c_current,c_min,c_max,s,t)
 % plot_inv_Slider_Crank_option1
 % Plots the five-bar mechanism with Option 1 configuration
 % DE is vertical telescopic actuator, EP rotates around E
@@ -220,7 +220,7 @@ function plot_five_link_inv_Slider_Crank(rA,rB,rC,rD,rE,rP,rP_v,c_current,c_min,
     BC_y = [corner1_BC(2), corner2_BC(2), corner3_BC(2), corner4_BC(2), corner1_BC(2)];
     patch(BC_x, BC_y, [0.6 0.6 0.6], 'EdgeColor', 'k', 'LineWidth', 1.5);
     
-    text(rC(1), rC(2)+s,'C','HorizontalAlignment','center');
+    text(rC2(1)+s, rC2(2)-s/2,'C','HorizontalAlignment','center');
     %% Plot joints on linkage
         
     % CHUMACERA en punto A (fijo en el suelo)
@@ -288,9 +288,16 @@ function plot_five_link_inv_Slider_Crank(rA,rB,rC,rD,rE,rP,rP_v,c_current,c_min,
     rectangle('Position', [rB(1)-bolt_radius_B, rB(2)-bolt_offset_B-bolt_radius_B, ...
                            2*bolt_radius_B, 2*bolt_radius_B], ...
               'Curvature', [1 1], 'FaceColor', [0.3 0.3 0.3], 'EdgeColor', 'k', 'LineWidth', 1);
-        
-    % Trajectory of P
-    plot(rP_v(1,:),rP_v(2,:),'.','Color','#D95319', 'MarkerSize', 3); 
+    
+    %% Plot midpoint of PE
+
+    % Joint at mPE
+    plot(rMidPE(1), rMidPE(2), 'o', 'MarkerSize', 6, ...
+         'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'r', 'LineWidth', 1.5);
+    text(rMidPE(1), rMidPE(2)+s,'O','HorizontalAlignment','center');
+
+    % Trajectory of midpoint of PE
+    plot(rMidPE_v(1,:),rMidPE_v(2,:),'.','Color','#D95319', 'MarkerSize', 3); 
     
     % Add motion indicators
     % if ~isempty(rP_v) && length(rP_v(1,:)) > 1
