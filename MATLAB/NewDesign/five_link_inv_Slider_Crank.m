@@ -110,7 +110,15 @@ for k = 1:(tf/dt+1)
     rE = FindPos(rD, c_length(k), eDE);
     
     % Find position of C and angle theta4 using Option 1 kinematics
-    [theta3(k), theta4(k)] = calc_theta3_theta4(rA, rB, rD, rE, b, e);
+    if k == 1
+        % Primera iteración, sin valores previos
+        [theta3(k), theta4(k)] = calc_theta3_theta4_nopt(rB, rE, b, e);
+    else
+        % Usar valores previos para mantener continuidad
+        [theta3(k), theta4(k)] = calc_theta3_theta4_nopt(rB, rE, b, e, theta3(k-1), theta4(k-1));
+    end
+    % Función con optimización
+    [theta3(k), theta4(k)] = calc_theta3_theta4_opt(rB, rE, b, e);
     
     % VERIFICATION: Check that BC is perpendicular to PE
     angle_diff = abs(theta3(k) - theta4(k));
