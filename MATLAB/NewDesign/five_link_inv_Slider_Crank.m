@@ -118,7 +118,7 @@ for k = 1:(tf/dt+1)
         [theta3(k), theta4(k)] = calc_theta3_theta4_nopt(rB, rE, b, e, theta3(k-1), theta4(k-1));
     end
     % Función con optimización
-    [theta3(k), theta4(k)] = calc_theta3_theta4_opt(rB, rE, b, e);
+    %[theta3(k), theta4(k)] = calc_theta3_theta4_opt(rB, rE, b, e);
     
     % VERIFICATION: Check that BC is perpendicular to PE
     angle_diff = abs(theta3(k) - theta4(k));
