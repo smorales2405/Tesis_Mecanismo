@@ -20,6 +20,12 @@ const int32_t MAX_POSITION_PULSES = -2600;  // Posición máxima (extendido)
 const float MIN_POSITION_CM = 0.0;          // 0 cm
 const float MAX_POSITION_CM = 14.3;         // 14.3 cm
 
+// Variables para el modo oscilatorio del actuador
+bool oscillatingMode = false;          // Indica si está en modo oscilatorio
+float oscillatingSpeed = 0.0;          // Velocidad de oscilación en cm/s
+bool movingForward = true;             // Dirección actual del movimiento
+unsigned long lastOscillationCheck = 0; // Para temporización
+
 // Crear objeto de comunicación serial y RoboClaw
 HardwareSerial RoboclawSerial(2);  // Usar UART2 del ESP32
 RoboClaw roboclaw(&RoboclawSerial, 10000);  // 10ms timeout
@@ -68,12 +74,27 @@ void loop() {
     stringComplete = false;
   }
   
-  // Opcional: Mostrar estado cada cierto tiempo
-  static unsigned long lastStatusTime = 0;
-  if (millis() - lastStatusTime > 5000) {  // Cada 5 segundos
-    // Puedes descomentar para ver estado continuo
-    // showStatus();
-    lastStatusTime = millis();
+  // Monitorear oscilación del actuador
+  if (oscillatingMode) {
+    if (millis() - lastOscillationCheck > 100) {  // Revisar cada 100ms
+      checkOscillation();
+      lastOscillationCheck = millis();
+      
+      // Mostrar posición actual periódicamente
+      static unsigned long lastPositionShow = 0;
+      if (millis() - lastPositionShow > 2000) {  // Cada 2 segundos
+        uint8_t status;
+        bool valid;
+        int32_t enc2 = roboclaw.ReadEncM2(ROBOCLAW_ADDRESS, &status, &valid);
+        if (valid) {
+          float cm = -(float)enc2 / PULSES_PER_CM;
+          Serial.print("Posición actual: ");
+          Serial.print(cm);
+          Serial.println(" cm");
+        }
+        lastPositionShow = millis();
+      }
+    }
   }
 }
 
@@ -87,9 +108,11 @@ void processCommand(String command) {
     moveToPosition(1, degrees);
   }
   else if (command.startsWith("P2:")) {
+      // Detener oscilación si está activa
+      oscillatingMode = false;
       // Control de posición Motor 2 en CENTÍMETROS
       float cm = command.substring(3).toFloat();
-      moveLinearActuator(cm);  // Nueva función para el actuador
+      moveLinearActuator(cm);
   }
   else if (command.startsWith("V1:")) {
     // Control de velocidad Motor 1
@@ -204,29 +227,113 @@ void moveLinearActuator(float cm) {
 }
 
 void setLinearActuatorSpeed(float cm_per_sec) {
-  // Convertir cm/s a pulsos por segundo
-  int32_t pulsesPerSecond = -(int32_t)(cm_per_sec * PULSES_PER_CM);
-  
-  // Verificar que no exceda límites de velocidad
-  float max_cm_per_sec = 5.0;  // Ajustar según tu sistema
-  if (abs(cm_per_sec) > max_cm_per_sec) {
-    Serial.print("Velocidad limitada a +/- ");
-    Serial.print(max_cm_per_sec);
-    Serial.println(" cm/s");
-    cm_per_sec = (cm_per_sec > 0) ? max_cm_per_sec : -max_cm_per_sec;
-    pulsesPerSecond = -(int32_t)(cm_per_sec * PULSES_PER_CM);
+  // Si la velocidad es 0, detener oscilación
+  if (cm_per_sec == 0) {
+    oscillatingMode = false;
+    roboclaw.ForwardM2(ROBOCLAW_ADDRESS, 0);
+    Serial.println("Actuador lineal detenido");
+    return;
   }
   
-  Serial.print("Actuador lineal velocidad: ");
-  Serial.print(cm_per_sec);
-  Serial.print(" cm/s (");
-  Serial.print(pulsesPerSecond);
-  Serial.println(" pulsos/s)");
+  // Verificar límites de velocidad
+  float max_cm_per_sec = 15.0;  // Ajustar según tu sistema
+  if (abs(cm_per_sec) > max_cm_per_sec) {
+    Serial.print("Velocidad limitada a ");
+    Serial.print(max_cm_per_sec);
+    Serial.println(" cm/s");
+    cm_per_sec = max_cm_per_sec;
+  }
   
-  roboclaw.SpeedAccelM2(ROBOCLAW_ADDRESS, ACCEL/2, pulsesPerSecond);
+  // Activar modo oscilatorio
+  oscillatingMode = true;
+  oscillatingSpeed = abs(cm_per_sec);  // Guardar velocidad absoluta
+  movingForward = true;  // Empezar extendiendo
+  
+  Serial.print("Modo oscilatorio activado: ");
+  Serial.print(oscillatingSpeed);
+  Serial.println(" cm/s");
+  Serial.println("El actuador oscilará entre 0 y 14.3 cm");
+  Serial.println("Ingrese 'S' o V2:0 para detener");
+  
+  // Iniciar movimiento hacia el límite máximo
+  startOscillation();
+}
+
+void startOscillation() {
+  if (!oscillatingMode) return;
+  
+  int32_t targetPosition;
+  
+  if (movingForward) {
+    // Mover hacia el límite máximo (extender)
+    targetPosition = MAX_POSITION_PULSES;  // -2600 pulsos
+    Serial.println("Extendiendo actuador...");
+  } else {
+    // Mover hacia el límite mínimo (retraer)
+    targetPosition = MIN_POSITION_PULSES;  // 0 pulsos
+    Serial.println("Retrayendo actuador...");
+  }
+  
+  // Convertir velocidad cm/s a pulsos/s
+  uint32_t speed = (uint32_t)(oscillatingSpeed * PULSES_PER_CM);
+  
+  // Enviar comando de posición
+  roboclaw.SpeedAccelDeccelPositionM2(ROBOCLAW_ADDRESS,
+                                       ACCEL/4,     // Aceleración suave
+                                       speed,
+                                       DECEL/4,     // Deceleración suave
+                                       targetPosition,
+                                       0);  // Buffer = 0 para poder cambiar dirección
+}
+
+void checkOscillation() {
+  if (!oscillatingMode) return;
+  
+  uint8_t status;
+  bool valid;
+  int32_t currentPosition = roboclaw.ReadEncM2(ROBOCLAW_ADDRESS, &status, &valid);
+  
+  if (!valid) return;
+  
+  // Verificar si llegó al límite
+  bool reachedLimit = false;
+  
+  if (movingForward && currentPosition <= (MAX_POSITION_PULSES + 50)) {
+    // Llegó al límite máximo (con tolerancia de 50 pulsos)
+    reachedLimit = true;
+    movingForward = false;
+    Serial.println("Límite máximo alcanzado - Cambiando dirección");
+  } 
+  else if (!movingForward && currentPosition >= (MIN_POSITION_PULSES - 50)) {
+    // Llegó al límite mínimo (con tolerancia de 50 pulsos)
+    reachedLimit = true;
+    movingForward = true;
+    Serial.println("Límite mínimo alcanzado - Cambiando dirección");
+  }
+  
+  // Si llegó al límite, cambiar dirección
+  if (reachedLimit) {
+    delay(100);  // Pequeña pausa antes de cambiar dirección
+    startOscillation();
+  }
+  
+  // Verificar si el motor se detuvo (por si acaso)
+  uint32_t speed;
+  uint8_t speedStatus;
+  bool speedValid;
+  speed = roboclaw.ReadSpeedM2(ROBOCLAW_ADDRESS, &speedStatus, &speedValid);
+  
+  if (speedValid && speed == 0) {
+    // El motor se detuvo, reiniciar movimiento
+    delay(500);  // Esperar medio segundo
+    startOscillation();
+  }
 }
 
 void stopMotors() {
+  // Detener modo oscilatorio si está activo
+  oscillatingMode = false;
+
   // Usar las funciones de la librería para detener
   roboclaw.ForwardM1(ROBOCLAW_ADDRESS, 0);
   roboclaw.ForwardM2(ROBOCLAW_ADDRESS, 0);
@@ -322,7 +429,9 @@ void printMenu() {
   Serial.println("  P1:xxx - Posición Motor 1 en grados (ej: P1:90)");
   Serial.println("  P2:xxx - Posición Actuador en cm (0-14.3) (ej: P2:7.5)");
   Serial.println("  V1:xxx - Velocidad Motor 1 en RPM (ej: V1:30)");
-  Serial.println("  V2:xxx - Velocidad Actuador en cm/s (ej: V2:2.5)");
+  Serial.println("  V2:xxx - Velocidad Actuador oscilante (ej: V2:2)");
+  Serial.println("         (El actuador oscilará entre límites)");
+  Serial.println("         V2:0 detiene la oscilación");
   Serial.println("  S      - Detener ambos motores");
   Serial.println("  R      - Reset encoders");
   Serial.println("  E      - Leer posición y velocidad actual");
