@@ -6,30 +6,30 @@ set(0,'DefaultLineMarkerSize',5);
 set(0,'defaultAxesFontSize',10);
 
 %% Linkage dimensions 
-a = 3;      % crank length (m) [r2]
-d = 5*a;    % length between ground pins A and D (m) [r1]
-b = 1.5*a;  % Rocker length (m) [r3]
-e = 30;     % Slider length EP (m) [length of platform]
+a = 7.03;      % crank length (cm) [r2]
+d = 52;    % length between ground pins A and D (cm) [r1]
+b = 8.345;  % Rocker length (cm) [r3]
+e = 70;     % Slider length EP (cm) [length of platform]
 
 %% Actuator Configuration (DE)
 % Mode selection: 'fixed', 'extend_contract', 'extend_only'
 actuator_mode = 'extend_contract';  % Change this to select mode
 
-c_initial = 1.5*a;  % Initial length of DE (m)
-c_min = 1*a;      % Minimum length of DE (m)
-c_max = 3*a;      % Maximum length of DE (m)
-c_velocity = 15.0;   % Actuator velocity (m/s) - positive for extension, negative for contraction
+c_initial = 6;  % Initial length of DE (cm)
+c_min = 6;      % Minimum length of DE (cm)
+c_max = 20;      % Maximum length of DE (cm)
+c_velocity = 5;   % Actuator velocity (cm/s) - positive for extension, negative for contraction
 
 % For fixed mode
-c_fixed = 1.5*a;    % Fixed length when actuator_mode = 'fixed'
+c_fixed = 5;    % Fixed length when actuator_mode = 'fixed'
 
 %% Ground Configuration
-theta1 = 0*(pi/180); % Angle between AD and 'x' axis
+%theta1 = 0*(pi/180); % Angle between AD and 'x' axis
 
 % Ground pins
 rA = [0; 0]; % ground pin at A (origin)
-[eAD,nAD] = UnitVector(theta1);
-rD = FindPos(rA, d, eAD); % ground pin at D
+%[eAD,nAD] = UnitVector(theta1);
+rD = [52; -3.6]; % ground pin at D
 
 %% Simulation configuration
 tf = 4.0;      % Set Time in seconds
@@ -46,6 +46,9 @@ theta2 = zeros(size(t));
 theta3 = zeros(size(t));
 theta4 = zeros(size(t));
 c_length = zeros(size(t)); % Variable length of DE
+
+th2_kinv = zeros(size(t));
+c_kinv = zeros(size(t));
 
 %% Initialize Crank Motion
 theta2(1) = 0*pi/180;  % Set Crank initial angle
@@ -92,7 +95,7 @@ end
 LinkColor = [14 103 180]/255;
 % Dynamic axis limits based on mechanism dimensions
 f = 1.2;
-xl = -(e/2)*f; xu = (e/2)*f; 
+xl = -(e/2); xu = (e)*f; 
 yl = -(a)*f; yu = (c_max)*f;
 sp = 0.6;
 
@@ -137,6 +140,9 @@ for k = 1:(tf/dt+1)
     rP = FindPos(rE, e, eEP);
     rMidPE_v(:,k) = rMidPE;
     
+    % Cinematica inversa 
+    %[th2_kinv(k), c_kinv(k), success] = inverse_kinematics_5bar(rMidPE(2), theta4(k));
+
     % Velocities (simplified for Option 1)
     % Angular velocity of BC
     if k > 1
@@ -185,31 +191,32 @@ for k = 1:(tf/dt+1)
 end
 
 %% Plot Results
-% Plot position, velocity and acceleration of midpoint of PE
-figure(2), clf;
-subplot(3,1,1), plot(t,rMidPE_v(1,:),'-','Color',"#1171BE"); grid on; hold on;
-plot(t,rMidPE_v(2,:),'-','Color',"#8516D1");
-ylabel('Posición (m)'); title('Posición de O (PE)'); 
-legend('$P_x$','$P_y$','interpreter','latex');
 
-subplot(3,1,2), plot(t,vMidPE_v(1,:),'-','Color',"#2FBEEF"); grid on; hold on;
-plot(t,vMidPE_v(2,:),'-','Color',"#D1048B");
-ylabel('Velocidad (m/s)'); title('Velocidad de O (PE)'); 
-legend('$V_x$','$V_y$','interpreter','latex');
-
-subplot(3,1,3), plot(t,aMidPE_v(1,:),'-','Color',"#EDB120"); grid on; hold on;
-plot(t,aMidPE_v(2,:),'-','Color',"#3BAA32"); xlabel('Tiempo (s)'); 
-ylabel('Aceleración (m/s^2)'); title('Aceleración de O (PE)'); 
-legend('$A_x$','$A_y$','interpreter','latex');
-
-% Plot angles and actuator length
-figure(3), clf;
-subplot(2,1,1), plot(t, rMidPE_v(2,:)); grid on;
-ylabel('Posición (m)'); title('Altura de O');
-
-subplot(2,1,2), plot(t, theta4*180/pi,'Color',"#DD5400"); grid on;
-ylabel('Ángulo (deg)'); title('Angulo tangente $\theta_4$ (EP)', 'interpreter','latex');
-xlabel('Tiempo (s)');
+% % Plot position, velocity and acceleration of midpoint of PE
+% figure(2), clf;
+% subplot(3,1,1), plot(t,rMidPE_v(1,:),'-','Color',"#1171BE"); grid on; hold on;
+% plot(t,rMidPE_v(2,:),'-','Color',"#8516D1");
+% ylabel('Posición (m)'); title('Posición de O (PE)'); 
+% legend('$P_x$','$P_y$','interpreter','latex');
+% 
+% subplot(3,1,2), plot(t,vMidPE_v(1,:),'-','Color',"#2FBEEF"); grid on; hold on;
+% plot(t,vMidPE_v(2,:),'-','Color',"#D1048B");
+% ylabel('Velocidad (m/s)'); title('Velocidad de O (PE)'); 
+% legend('$V_x$','$V_y$','interpreter','latex');
+% 
+% subplot(3,1,3), plot(t,aMidPE_v(1,:),'-','Color',"#EDB120"); grid on; hold on;
+% plot(t,aMidPE_v(2,:),'-','Color',"#3BAA32"); xlabel('Tiempo (s)'); 
+% ylabel('Aceleración (m/s^2)'); title('Aceleración de O (PE)'); 
+% legend('$A_x$','$A_y$','interpreter','latex');
+% 
+% % Plot angles and actuator length
+% figure(3), clf;
+% subplot(2,1,1), plot(t, rMidPE_v(2,:)); grid on;
+% ylabel('Posición (m)'); title('Altura de O');
+% 
+% subplot(2,1,2), plot(t, theta4*180/pi,'Color',"#DD5400"); grid on;
+% ylabel('Ángulo (deg)'); title('Angulo tangente $\theta_4$ (EP)', 'interpreter','latex');
+% xlabel('Tiempo (s)');
 
 % subplot(3,1,3), plot(t, c_length, 'r-', 'LineWidth', 2); grid on; hold on;
 % plot([0 tf], [c_min c_min], 'k--', 'LineWidth', 1);
@@ -220,19 +227,37 @@ xlabel('Tiempo (s)');
 
 %% Plots for document
 
+rMidPE_v = rMidPE_v - rMidPE_v(:,1);
+theta4 = theta4 - theta4(1);
+
 figure(4), clf;
 plot(t,rMidPE_v(1,:),'-','Color',"#1171BE"); grid on; hold on;
 plot(t,rMidPE_v(2,:),'-','Color',"#8516D1");
-ylabel('Posición (m)'); title('Posición de O (PE)'); 
+ylabel('Posición (cm)'); title('Posición de O (PE)'); 
 legend('$P_x$','$P_y$','interpreter','latex');
 
-figure(5), clf;
-plot(t,vMidPE_v(1,:),'-','Color',"#2FBEEF"); grid on; hold on;
-plot(t,vMidPE_v(2,:),'-','Color',"#D1048B");
-ylabel('Velocidad (m/s)'); title('Velocidad de O (PE)'); 
-legend('$V_x$','$V_y$','interpreter','latex');
+% figure(5), clf;
+% plot(t,vMidPE_v(1,:),'-','Color',"#2FBEEF"); grid on; hold on;
+% plot(t,vMidPE_v(2,:),'-','Color',"#D1048B");
+% ylabel('Velocidad (m/s)'); title('Velocidad de O (PE)'); 
+% legend('$V_x$','$V_y$','interpreter','latex');
 
 figure(6), clf;
 plot(t, theta4*180/pi,'Color',"#DD5400"); grid on;
 ylabel('Ángulo (deg)'); title('Angulo tangente $\theta_4$ (EP)', 'interpreter','latex');
 xlabel('Tiempo (s)');
+
+%%
+
+% % Plot 1
+% figure(7), clf;
+% plot(t, mod(rad2deg(theta2), 360)); hold on; plot(t, mod(rad2deg(th2_kinv), 360)); grid on;
+% ylabel('Ángulo (deg)'); title('Angulo $\theta_2$', 'interpreter','latex');
+% xlabel('Tiempo (s)');
+% 
+% % Plot 2
+% figure(8), clf;
+% plot(t, c_length); hold on; plot(t, c_kinv); grid on;
+% ylabel('Posicion (m)'); title('Longitud de la barra DE', 'interpreter','latex');
+% xlabel('Tiempo (s)');
+

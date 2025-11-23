@@ -4,7 +4,7 @@ function plot_five_link_inv_Slider_Crank(rA,rB,rC,rD,rE,rMidPE,rP,rMidPE_v,c_cur
 % DE is vertical telescopic actuator, EP rotates around E
       
     % Figure configuration
-    plot(nan), xlabel('x (m)'), ylabel('y (m)');
+    plot(nan), xlabel('x (cm)'), ylabel('y (cm)');
     title({'Banco de pruebas oscilante'});
     
     %% Add point labels
@@ -146,8 +146,8 @@ function plot_five_link_inv_Slider_Crank(rA,rB,rC,rD,rE,rMidPE,rP,rMidPE_v,c_cur
     
     % 2. RIEL INFERIOR (gris medio) - FIJO en la barra PE
     % El riel es parte fija de la estructura PE (no se mueve con C)
-    rail_length = 12.5;  % Longitud del riel en metros
-    rail_start_distance = 10;  % Distancia desde E donde empieza el riel
+    rail_length = 25;  % Longitud del riel en metros
+    rail_start_distance = 41.5;  % Distancia desde E donde empieza el riel
     
     % El riel empieza a cierta distancia desde E
     rail_start_point = rE + rail_start_distance*e_along;
