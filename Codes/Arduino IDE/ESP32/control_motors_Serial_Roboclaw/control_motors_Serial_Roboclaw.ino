@@ -6,13 +6,13 @@
 #define ROBOCLAW_TX 17  // Pin TX del ESP32 (conectar a RX del RoboClaw)
 #define ROBOCLAW_ADDRESS 0x80  // Dirección del RoboClaw
 
-// Configuración del encoder y motor 1 (rotacional)
-const float ENCODER_CPR_OUTPUT = 6533.0;   // CPR en la salida del gearbox
-
 //Variables Roboclaw
 int32_t enc1 = 0, enc2 = 0, speed1 = 0, speed2 = 0;
 uint8_t status1, status2, status3, status4;
 bool valid1, valid2, valid3, valid4;
+
+// Configuración del encoder y motor 1 (rotacional)
+const float ENCODER_CPR_OUTPUT = 6533.0;   // CPR en la salida del gearbox
 
 // Configuración del motor 2 (actuador lineal)
 const float PULSES_PER_REV_M2 = 145.1;     // Pulsos por revolución del motor 2
@@ -112,7 +112,6 @@ void loop() {
     if (abs(abs(enc1)-abs(targetPosition)) <= tol_home2) {
       roboclaw.ForwardM1(ROBOCLAW_ADDRESS, 0);
     }
-
   }
   
   // Monitorear oscilación del actuador (solo si no está retornando a home)
