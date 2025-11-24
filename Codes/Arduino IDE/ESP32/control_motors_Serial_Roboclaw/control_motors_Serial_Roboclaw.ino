@@ -19,6 +19,10 @@ const int32_t MIN_POSITION_PULSES = 0;      // Posición mínima (retraído)
 const int32_t MAX_POSITION_PULSES = -2600;  // Posición máxima (extendido)
 const float MIN_POSITION_CM = 0.0;          // 0 cm
 const float MAX_POSITION_CM = 14.3;         // 14.3 cm
+// Variables para límites personalizados de oscilación
+float minOscillationLimit = MIN_POSITION_CM;  // Límite inferior (por defecto 0 cm)
+float maxOscillationLimit = MAX_POSITION_CM;  // Límite superior (por defecto 14.3 cm)
+float cm = 0.0;
 
 // Variables para el modo oscilatorio del actuador
 bool oscillatingMode = false;          // Indica si está en modo oscilatorio
@@ -102,6 +106,104 @@ void processCommand(String command) {
   command.trim();
   command.toUpperCase();
   
+  // Buscar y procesar comandos en el string
+  int pos = 0;
+  
+  while (pos < command.length()) {
+    // Saltar espacios en blanco
+    while (pos < command.length() && command.charAt(pos) == ' ') {
+      pos++;
+    }
+    
+    if (pos >= command.length()) break;
+    
+    // Identificar el tipo de comando
+    int colonPos = command.indexOf(':', pos);
+    
+    if (colonPos != -1 && colonPos - pos <= 2) {
+      // Es un comando con ":" (P1:, P2:, V1:, V2:)
+      String cmdType = command.substring(pos, colonPos + 1);
+      
+      // Extraer el resto después de ':'
+      int paramStart = colonPos + 1;
+      
+      // Saltar espacios después de ':'
+      while (paramStart < command.length() && command.charAt(paramStart) == ' ') {
+        paramStart++;
+      }
+      
+      // Encontrar dónde termina este comando
+      int endPos;
+      if (cmdType == "V2:") {
+        // V2 puede tener múltiples parámetros separados por espacios
+        endPos = findNextCommand(command, paramStart);
+      } else {
+        // P1:, P2:, V1: tienen un solo parámetro numérico
+        // Leer hasta el siguiente espacio seguido de un comando o fin de string
+        endPos = findNextCommand(command, paramStart);
+        
+        // Si no encontró otro comando, usar todo lo que queda
+        if (endPos == command.length()) {
+          endPos = command.length();
+        }
+      }
+      
+      // Construir el comando completo incluyendo el tipo y los parámetros
+      String params = command.substring(paramStart, endPos);
+      params.trim(); // Eliminar espacios extra
+      String fullCommand = cmdType + params;
+      
+      processSingleCommand(fullCommand);
+      pos = endPos;
+      
+    } else {
+      // Es un comando de una letra (S, R, E, H, ?)
+      char cmd = command.charAt(pos);
+      String singleCmd = String(cmd);
+      processSingleCommand(singleCmd);
+      pos++;
+    }
+  }
+}
+
+// Función auxiliar para encontrar el siguiente comando
+int findNextCommand(String command, int startPos) {
+  // Buscar patrones de comandos: P1:, P2:, V1:, V2:
+  // Debe haber un espacio antes del comando (o estar al inicio)
+  for (int i = startPos; i < command.length() - 2; i++) {
+    // Verificar si hay un espacio antes (o es el inicio del string)
+    if (i > startPos) {  // No estamos al inicio de la búsqueda
+      // Debe haber al menos un espacio antes del comando
+      if (command.charAt(i) == ' ' || command.charAt(i-1) == ' ') {
+        // Saltar espacios
+        int checkPos = i;
+        while (checkPos < command.length() && command.charAt(checkPos) == ' ') {
+          checkPos++;
+        }
+        
+        // Verificar si sigue un patrón de comando
+        if (checkPos + 2 < command.length()) {
+          String pattern = command.substring(checkPos, checkPos + 3);
+          if (pattern == "P1:" || pattern == "P2:" || 
+              pattern == "V1:" || pattern == "V2:") {
+            return checkPos;
+          }
+        }
+        
+        // Verificar comandos de una letra
+        if (checkPos < command.length()) {
+          char c = command.charAt(checkPos);
+          if (c == 'S' || c == 'R' || c == 'E' || c == 'H' || c == '?') {
+            return checkPos;
+          }
+        }
+      }
+    }
+  }
+  return command.length();
+}
+
+void processSingleCommand(String command) {
   if (command.startsWith("P1:")) {
     // Control de posición Motor 1
     float degrees = command.substring(3).toFloat();
@@ -120,9 +222,8 @@ void processCommand(String command) {
     setMotorSpeed(1, rpm);
   }
   else if (command.startsWith("V2:")) {
-      // Control de velocidad Motor 2 en CM/S
-      float cm_per_sec = command.substring(3).toFloat();
-      setLinearActuatorSpeed(cm_per_sec);  // Nueva función
+      // Control de velocidad Motor 2 en CM/S con límites opcionales
+      parseAndSetLinearSpeed(command.substring(3));
   }
   else if (command == "S") {
     // Detener motores
@@ -141,7 +242,8 @@ void processCommand(String command) {
     printMenu();
   }
   else {
-    Serial.println("Comando no reconocido. Escribe 'H' para ayuda");
+    Serial.print("Comando no reconocido: ");
+    Serial.println(command);
   }
 }
 
@@ -252,11 +354,105 @@ void setLinearActuatorSpeed(float cm_per_sec) {
   Serial.print("Modo oscilatorio activado: ");
   Serial.print(oscillatingSpeed);
   Serial.println(" cm/s");
-  Serial.println("El actuador oscilará entre 0 y 14.3 cm");
+  Serial.print("El actuador oscilará entre ");
+  Serial.print(minOscillationLimit);
+  Serial.print(" cm y ");
+  Serial.print(maxOscillationLimit);
+  Serial.println(" cm");
   Serial.println("Ingrese 'S' o V2:0 para detener");
   
   // Iniciar movimiento hacia el límite máximo
   startOscillation();
+}
+
+void parseAndSetLinearSpeed(String params) {
+  // Parsear parámetros: velocidad [min_limit] [max_limit]
+  params.trim();
+  
+  // Contar cuántos números hay
+  int spaceCount = 0;
+  for (int i = 0; i < params.length(); i++) {
+    if (params.charAt(i) == ' ') {
+      // Saltar espacios múltiples
+      while (i < params.length() && params.charAt(i) == ' ') {
+        i++;
+      }
+      if (i < params.length()) spaceCount++;
+    }
+  }
+  
+  float cm_per_sec;
+  float minLimit = MIN_POSITION_CM;  // Valor por defecto
+  float maxLimit = MAX_POSITION_CM;  // Valor por defecto
+  
+  if (spaceCount == 0) {
+    // Solo velocidad, sin límites
+    cm_per_sec = params.toFloat();
+    Serial.print("Velocidad: ");
+    Serial.print(cm_per_sec);
+    Serial.println(" cm/s (límites por defecto)");
+    
+  } else if (spaceCount == 1) {
+    // Error: se necesitan 2 límites o ninguno
+    Serial.println("ERROR: Debes especificar AMBOS límites (mínimo y máximo)");
+    Serial.println("Formato correcto: V2:velocidad min max");
+    Serial.println("Ejemplo: V2:5 2 12");
+    return;
+    
+  } else {
+    // Velocidad + 2 límites
+    int firstSpace = params.indexOf(' ');
+    int secondSpace = params.indexOf(' ', firstSpace + 1);
+    
+    // Saltar espacios múltiples
+    while (secondSpace < params.length() && params.charAt(secondSpace) == ' ') {
+      secondSpace++;
+    }
+    secondSpace = params.indexOf(' ', secondSpace);
+    if (secondSpace == -1) {
+      // Buscar el último grupo de números
+      int lastNonSpace = params.length() - 1;
+      while (lastNonSpace > 0 && params.charAt(lastNonSpace) == ' ') {
+        lastNonSpace--;
+      }
+      secondSpace = params.lastIndexOf(' ', lastNonSpace);
+    }
+    
+    cm_per_sec = params.substring(0, firstSpace).toFloat();
+    minLimit = params.substring(firstSpace + 1, secondSpace).toFloat();
+    maxLimit = params.substring(secondSpace + 1).toFloat();
+    
+    // Validar límites
+    if (minLimit < MIN_POSITION_CM || minLimit > MAX_POSITION_CM ||
+        maxLimit < MIN_POSITION_CM || maxLimit > MAX_POSITION_CM) {
+      Serial.print("ERROR: Límites fuera de rango (");
+      Serial.print(MIN_POSITION_CM);
+      Serial.print(" - ");
+      Serial.print(MAX_POSITION_CM);
+      Serial.println(" cm)");
+      return;
+    }
+    
+    if (minLimit >= maxLimit) {
+      Serial.println("ERROR: El límite mínimo debe ser menor que el máximo");
+      return;
+    }
+    
+    Serial.print("Velocidad: ");
+    Serial.print(cm_per_sec);
+    Serial.print(" cm/s, Límites: ");
+    Serial.print(minLimit);
+    Serial.print(" - ");
+    Serial.print(maxLimit);
+    Serial.println(" cm");
+  }
+  
+  // Actualizar límites globales de oscilación
+  minOscillationLimit = minLimit;
+  maxOscillationLimit = maxLimit;
+  
+  // Llamar a la función modificada
+  setLinearActuatorSpeed(cm_per_sec);
 }
 
 void startOscillation() {
@@ -265,13 +461,17 @@ void startOscillation() {
   int32_t targetPosition;
   
   if (movingForward) {
-    // Mover hacia el límite máximo (extender)
-    targetPosition = MAX_POSITION_PULSES;  // -2600 pulsos
-    Serial.println("Extendiendo actuador...");
+    // Mover hacia el límite máximo personalizado (extender)
+    targetPosition = -(int32_t)(maxOscillationLimit * PULSES_PER_CM);
+    Serial.print("Extendiendo actuador hacia ");
+    Serial.print(maxOscillationLimit);
+    Serial.println(" cm...");
   } else {
-    // Mover hacia el límite mínimo (retraer)
-    targetPosition = MIN_POSITION_PULSES;  // 0 pulsos
-    Serial.println("Retrayendo actuador...");
+    // Mover hacia el límite mínimo personalizado (retraer)
+    targetPosition = -(int32_t)(minOscillationLimit * PULSES_PER_CM);
+    Serial.print("Retrayendo actuador hacia ");
+    Serial.print(minOscillationLimit);
+    Serial.println(" cm...");
   }
   
   // Convertir velocidad cm/s a pulsos/s
@@ -295,16 +495,20 @@ void checkOscillation() {
   
   if (!valid) return;
   
+  // Convertir posiciones de límites a pulsos
+  int32_t maxLimitPulses = -(int32_t)(maxOscillationLimit * PULSES_PER_CM);
+  int32_t minLimitPulses = -(int32_t)(minOscillationLimit * PULSES_PER_CM);
+  
   // Verificar si llegó al límite
   bool reachedLimit = false;
   
-  if (movingForward && currentPosition <= (MAX_POSITION_PULSES + 50)) {
+  if (movingForward && currentPosition <= (maxLimitPulses + 50)) {
     // Llegó al límite máximo (con tolerancia de 50 pulsos)
     reachedLimit = true;
     movingForward = false;
     Serial.println("Límite máximo alcanzado - Cambiando dirección");
   } 
-  else if (!movingForward && currentPosition >= (MIN_POSITION_PULSES - 50)) {
+  else if (!movingForward && currentPosition >= (minLimitPulses - 50)) {
     // Llegó al límite mínimo (con tolerancia de 50 pulsos)
     reachedLimit = true;
     movingForward = true;
@@ -363,7 +567,7 @@ void readEncoders() {
   // Motor 2 - mostrar en centímetros
   int32_t enc2 = roboclaw.ReadEncM2(ROBOCLAW_ADDRESS, &status2, &valid2);
   if (valid2) {
-    float cm = -(float)enc2 / PULSES_PER_CM;  // Negativo para conversión correcta
+    cm = -(float)enc2 / PULSES_PER_CM;  // Negativo para conversión correcta
     Serial.print("Actuador lineal: ");
     Serial.print(enc2);
     Serial.print(" pulsos (");
@@ -429,10 +633,14 @@ void printMenu() {
   Serial.println("  P1:xxx - Posición Motor 1 en grados (ej: P1:90)");
   Serial.println("  P2:xxx - Posición Actuador en cm (0-14.3) (ej: P2:7.5)");
   Serial.println("  V1:xxx - Velocidad Motor 1 en RPM (ej: V1:30)");
-  Serial.println("  V2:xxx - Velocidad Actuador oscilante (ej: V2:2)");
-  Serial.println("         (El actuador oscilará entre límites)");
-  Serial.println("         V2:0 detiene la oscilación");
-  Serial.println("  S      - Detener ambos motores");
+  Serial.println("  V2:vel [min] [max] - Velocidad Actuador oscilante");
+  Serial.println("         V2:5      -> Oscila a 5cm/s entre 0-14.3cm (toda la carrera)");
+  Serial.println("         V2:5 2 12 -> Oscila a 5cm/s entre 2cm y 12cm");
+  Serial.println("         V2:0      -> Detiene la oscilación");
+  Serial.println("\n  MÚLTIPLES COMANDOS:");
+  Serial.println("  V1:30 P2:5   -> Velocidad M1 a 30 RPM y posición M2 a 5cm");
+  Serial.println("  V1:50 V2:10  -> Velocidad M1 a 50 RPM y M2 oscilando a 10cm/s");
+  Serial.println("\n  S      - Detener ambos motores");
   Serial.println("  R      - Reset encoders");
   Serial.println("  E      - Leer posición y velocidad actual");
   Serial.println("  H o ?  - Mostrar este menú");
