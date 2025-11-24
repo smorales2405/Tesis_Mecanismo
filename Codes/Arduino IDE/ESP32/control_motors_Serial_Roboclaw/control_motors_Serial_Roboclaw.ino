@@ -9,6 +9,11 @@
 // Configuración del encoder y motor 1 (rotacional)
 const float ENCODER_CPR_OUTPUT = 6533.0;   // CPR en la salida del gearbox
 
+//Variables Roboclaw
+int32_t enc1 = 0, enc2 = 0, speed1 = 0, speed2 = 0;
+uint8_t status1, status2, status3, status4;
+bool valid1, valid2, valid3, valid4;
+
 // Configuración del motor 2 (actuador lineal)
 const float PULSES_PER_REV_M2 = 145.1;     // Pulsos por revolución del motor 2
 const float CM_PER_REV = 0.8;              // 8mm = 0.8cm por revolución
@@ -29,6 +34,15 @@ bool oscillatingMode = false;          // Indica si está en modo oscilatorio
 float oscillatingSpeed = 0.0;          // Velocidad de oscilación en cm/s
 bool movingForward = true;             // Dirección actual del movimiento
 unsigned long lastOscillationCheck = 0; // Para temporización
+
+// Variables para retorno a posición inicial
+bool returningToHome = false;          // Indica si está retornando a home
+unsigned long homeReturnStart = 0;     // Para timeout de seguridad
+int32_t tol_home1 = 1*ENCODER_CPR_OUTPUT/360.0;   // °
+int32_t tol_home2 = 5*ENCODER_CPR_OUTPUT/360.0;   // °
+int32_t tol_home3 = 0.5*PULSES_PER_CM/10.0;       // mm
+int32_t PPSToHome = 20*ENCODER_CPR_OUTPUT/60;
+int32_t targetPosition = 0;
 
 // Crear objeto de comunicación serial y RoboClaw
 HardwareSerial RoboclawSerial(2);  // Usar UART2 del ESP32
@@ -73,32 +87,51 @@ void loop() {
   
   // Procesar comando cuando esté completo
   if (stringComplete) {
-    processCommand(inputString);
+    // Primero, limpiar el comando
+    inputString.trim();
+    
+    // No procesar nuevos comandos si está retornando a home (excepto emergencia)
+    if (returningToHome && inputString != "E") {
+      Serial.println("Esperando retorno a posición inicial...");
+    } else {
+      processCommand(inputString);
+    }
     inputString = "";
     stringComplete = false;
   }
   
-  // Monitorear oscilación del actuador
-  if (oscillatingMode) {
-    if (millis() - lastOscillationCheck > 100) {  // Revisar cada 100ms
+  // Verificar retorno a home
+  if (returningToHome) {
+    static unsigned long lastHomeCheck = 0;
+    if (millis() - lastHomeCheck > 200) {  // Revisar cada 200ms
+      checkHomeReturn();
+      lastHomeCheck = millis();
+    }
+
+    enc1 = roboclaw.ReadEncM1(ROBOCLAW_ADDRESS, &status1, &valid1);
+    if (abs(abs(enc1)-abs(targetPosition)) <= tol_home2) {
+      roboclaw.ForwardM1(ROBOCLAW_ADDRESS, 0);
+    }
+
+  }
+  
+  // Monitorear oscilación del actuador (solo si no está retornando a home)
+  if (oscillatingMode && !returningToHome) {
+    if (millis() - lastOscillationCheck > 100) {
       checkOscillation();
       lastOscillationCheck = millis();
-      
-      // Mostrar posición actual periódicamente
-      static unsigned long lastPositionShow = 0;
-      if (millis() - lastPositionShow > 2000) {  // Cada 2 segundos
-        uint8_t status;
-        bool valid;
-        int32_t enc2 = roboclaw.ReadEncM2(ROBOCLAW_ADDRESS, &status, &valid);
-        if (valid) {
-          float cm = -(float)enc2 / PULSES_PER_CM;
-          Serial.print("Posición actual: ");
-          Serial.print(cm);
-          Serial.println(" cm");
-        }
-        lastPositionShow = millis();
-      }
     }
+  }
+
+}
+
+void resetEncoderM1() {
+  enc1 = roboclaw.ReadEncM1(ROBOCLAW_ADDRESS, &status1, &valid1);
+  if (enc1 > ENCODER_CPR_OUTPUT) {
+    roboclaw.SetEncM1(ROBOCLAW_ADDRESS, 0);
+  }
+  else if (enc1 < 0 && enc1 < ENCODER_CPR_OUTPUT) {
+    roboclaw.SetEncM1(ROBOCLAW_ADDRESS, 0);
   }
 }
 
@@ -229,11 +262,15 @@ void processSingleCommand(String command) {
     // Detener motores
     stopMotors();
   }
+  else if (command == "E") {
+    // Parada de emergencia - detiene inmediatamente sin retornar a home
+    emergencyStop();
+  }
   else if (command == "R") {
     // Reset encoders
     resetEncoders();
   }
-  else if (command == "E") {
+  else if (command == "L") {
     // Leer posición actual
     readEncoders();
   }
@@ -245,6 +282,19 @@ void processSingleCommand(String command) {
     Serial.print("Comando no reconocido: ");
     Serial.println(command);
   }
+}
+
+void emergencyStop() {
+  // Detener todo inmediatamente
+  oscillatingMode = false;
+  returningToHome = false;
+  
+  roboclaw.ForwardM1(ROBOCLAW_ADDRESS, 0);
+  roboclaw.ForwardM2(ROBOCLAW_ADDRESS, 0);
+  
+  Serial.println("\n⚠ PARADA DE EMERGENCIA ⚠");
+  Serial.println("Motores detenidos inmediatamente");
+  Serial.println("Use 'S' para retornar a posición inicial");
 }
 
 void moveToPosition(uint8_t motor, float degrees) {
@@ -535,13 +585,152 @@ void checkOscillation() {
 }
 
 void stopMotors() {
-  // Detener modo oscilatorio si está activo
+  // Desactivar modo oscilatorio si está activo
   oscillatingMode = false;
+  
+  Serial.println("\n=== RETORNANDO A POSICIÓN INICIAL ===");
+  returningToHome = true;
+  homeReturnStart = millis();
+  
+  // Motor 1: Ir al múltiplo de 360° más cercano
+  returnMotor1ToHome();
+  
+  // Motor 2: Ir a posición 0 cm
+  returnActuatorToHome();
+  
+  Serial.println("Esperando que ambos motores lleguen a posición inicial...");
+}
 
-  // Usar las funciones de la librería para detener
-  roboclaw.ForwardM1(ROBOCLAW_ADDRESS, 0);
-  roboclaw.ForwardM2(ROBOCLAW_ADDRESS, 0);
-  Serial.println("Motores detenidos");
+void returnMotor1ToHome() {
+
+  int32_t revolutions = 0;
+
+  // Leer posición actual del motor 1
+  enc1 = roboclaw.ReadEncM1(ROBOCLAW_ADDRESS, &status1, &valid1);
+  
+  if (!valid1) {
+    Serial.println("Error leyendo encoder Motor 1");
+    return;
+  }
+  
+  // Calcular el múltiplo de 6533 pulsos (360°) más cercano
+  const int32_t PULSES_PER_REV = 6533;
+  speed1 = roboclaw.ReadSpeedM1(ROBOCLAW_ADDRESS, &status3, &valid3);
+  // Si la posición es positiva y no está exactamente en un múltiplo, ir al siguiente
+  if (speed1 > 0) {
+    if (enc1 > 0) {
+      revolutions = enc1 / PULSES_PER_REV + 1;
+    } 
+    else if (enc1 < 0) {
+      revolutions = enc1 / PULSES_PER_REV;
+    }
+    roboclaw.SpeedAccelM1(ROBOCLAW_ADDRESS, ACCEL, PPSToHome);
+  }
+  else if (speed1 < 0) {
+    if (enc1 < 0) {
+      revolutions = enc1 / PULSES_PER_REV - 1;
+    } 
+    else if (enc1 > 0) {
+      revolutions = enc1 / PULSES_PER_REV;
+    }
+    roboclaw.SpeedAccelM1(ROBOCLAW_ADDRESS, ACCEL, -PPSToHome);
+  }
+
+  targetPosition = revolutions * PULSES_PER_REV;
+  
+  float currentDegrees = encoderCountsToDegrees(enc1);
+  float targetDegrees = encoderCountsToDegrees(targetPosition);
+  
+  Serial.print("Motor 1 - Posición actual: ");
+  Serial.print(currentDegrees);
+  Serial.print("° → Objetivo: ");
+  Serial.print(targetDegrees);
+  Serial.println("° (múltiplo de 360°)");
+
+}
+
+void returnActuatorToHome() {
+  uint8_t status;
+  bool valid;
+  
+  // Leer posición actual del actuador
+  int32_t currentPosition = roboclaw.ReadEncM2(ROBOCLAW_ADDRESS, &status, &valid);
+  
+  if (!valid) {
+    Serial.println("Error leyendo encoder Motor 2");
+    return;
+  }
+  
+  float currentCm = -(float)currentPosition / PULSES_PER_CM;
+  
+  Serial.print("Actuador - Posición actual: ");
+  Serial.print(currentCm);
+  Serial.println(" cm → Objetivo: 0 cm");
+  
+  // Mover a posición 0 (completamente retraído)
+  roboclaw.SpeedAccelDeccelPositionM2(ROBOCLAW_ADDRESS,
+                                       ACCEL/2,
+                                       1000,  // Velocidad segura para retorno
+                                       DECEL/2,
+                                       MIN_POSITION_PULSES,  // 0 pulsos
+                                       1);
+}
+
+void checkHomeReturn() {
+  if (!returningToHome) return;
+    
+  // Leer posiciones actuales
+  enc1 = roboclaw.ReadEncM1(ROBOCLAW_ADDRESS, &status1, &valid1);
+  enc2 = roboclaw.ReadEncM2(ROBOCLAW_ADDRESS, &status2, &valid2);
+  
+  // Leer velocidades para saber si se están moviendo
+  speed1 = roboclaw.ReadSpeedM1(ROBOCLAW_ADDRESS, &status1, &valid1);
+  speed2 = roboclaw.ReadSpeedM2(ROBOCLAW_ADDRESS, &status2, &valid2);
+  
+  bool motor1AtHome = false;
+  bool motor2AtHome = false;
+  
+  // Verificar Motor 1 - está en múltiplo de 360° y detenido
+  if (valid1) {
+    const int32_t PULSES_PER_REV = 6533;
+    // Tolerancia de ±10 pulsos
+    if (abs(abs(enc1)-abs(targetPosition)) <= tol_home1) {
+      if (speed1 < 10) {  // Prácticamente detenido
+        motor1AtHome = true;
+      }
+    }
+  }
+  
+  // Verificar Motor 2 - está en posición 0 y detenido
+  if (valid2) {
+    // Tolerancia de ±10 pulsos desde 0
+    if (abs(enc2 - MIN_POSITION_PULSES) <= tol_home3) {
+      if (speed2 < 10) {  // Prácticamente detenido
+        motor2AtHome = true;
+      }
+    }
+  }
+  
+  // Si ambos están en home
+  if (motor1AtHome && motor2AtHome) {
+    returningToHome = false;
+    Serial.println("\n✓ AMBOS MOTORES EN POSICIÓN INICIAL");
+    Serial.print("Motor 1: ");
+    Serial.print(encoderCountsToDegrees(enc1));
+    Serial.println("°");
+    Serial.print("Actuador: ");
+    Serial.print(-(float)enc2 / PULSES_PER_CM);
+    Serial.println(" cm");
+    Serial.println("=====================================");
+  }
+  
+  // Timeout de seguridad (30 segundos)
+  if (millis() - homeReturnStart > 30000) {
+    returningToHome = false;
+    roboclaw.ForwardM1(ROBOCLAW_ADDRESS, 0);
+    roboclaw.ForwardM2(ROBOCLAW_ADDRESS, 0);
+    Serial.println("\n⚠ Timeout - Retorno a home cancelado");
+  }
 }
 
 void resetEncoders() {
@@ -550,11 +739,9 @@ void resetEncoders() {
 }
 
 void readEncoders() {
-  uint8_t status1, status2;
-  bool valid1, valid2;
   
   // Motor 1 - mostrar en grados
-  int32_t enc1 = roboclaw.ReadEncM1(ROBOCLAW_ADDRESS, &status1, &valid1);
+  enc1 = roboclaw.ReadEncM1(ROBOCLAW_ADDRESS, &status1, &valid1);
   if (valid1) {
     float degrees1 = encoderCountsToDegrees(enc1);
     Serial.print("Motor 1: ");
@@ -565,7 +752,7 @@ void readEncoders() {
   }
   
   // Motor 2 - mostrar en centímetros
-  int32_t enc2 = roboclaw.ReadEncM2(ROBOCLAW_ADDRESS, &status2, &valid2);
+  enc2 = roboclaw.ReadEncM2(ROBOCLAW_ADDRESS, &status2, &valid2);
   if (valid2) {
     cm = -(float)enc2 / PULSES_PER_CM;  // Negativo para conversión correcta
     Serial.print("Actuador lineal: ");
@@ -584,10 +771,8 @@ void readEncoders() {
   }
   
   // Velocidades
-  uint8_t status3, status4;
-  bool valid3, valid4;
-  uint32_t speed1 = roboclaw.ReadSpeedM1(ROBOCLAW_ADDRESS, &status3, &valid3);
-  uint32_t speed2 = roboclaw.ReadSpeedM2(ROBOCLAW_ADDRESS, &status4, &valid4);
+  speed1 = roboclaw.ReadSpeedM1(ROBOCLAW_ADDRESS, &status3, &valid3);
+  speed2 = roboclaw.ReadSpeedM2(ROBOCLAW_ADDRESS, &status4, &valid4);
   
   if (valid3) {
     float rpm1 = pulsesPerSecondToRPM(speed1);
@@ -640,9 +825,12 @@ void printMenu() {
   Serial.println("\n  MÚLTIPLES COMANDOS:");
   Serial.println("  V1:30 P2:5   -> Velocidad M1 a 30 RPM y posición M2 a 5cm");
   Serial.println("  V1:50 V2:10  -> Velocidad M1 a 50 RPM y M2 oscilando a 10cm/s");
-  Serial.println("\n  S      - Detener ambos motores");
+  Serial.println("  S      - Retornar a posición inicial");
+  Serial.println("         (Motor 1 → múltiplo de 360°)");
+  Serial.println("         (Actuador → 0 cm)");
+  Serial.println("  E      - Parada de emergencia (detiene sin retornar)");
   Serial.println("  R      - Reset encoders");
-  Serial.println("  E      - Leer posición y velocidad actual");
+  Serial.println("  L      - Leer posición y velocidad actual");
   Serial.println("  H o ?  - Mostrar este menú");
   Serial.println("\nLímites actuador: 0 cm (retraído) a 14.3 cm (extendido)");
   Serial.println("=====================================\n");
