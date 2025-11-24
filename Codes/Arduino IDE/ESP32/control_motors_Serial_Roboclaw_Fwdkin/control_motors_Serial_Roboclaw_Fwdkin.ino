@@ -130,6 +130,9 @@ void loop() {
         Serial.println("Offset");
       }
       th4 = (result.theta4-offset_th4)*(180/PI);
+      if (th4 > 100) {
+        th4 = -(360-th4);
+      } 
       O_y = result.O_y - offset_O_y;
       //Serial.print("Altura: ");
       Serial.print(O_y);

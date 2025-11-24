@@ -46,6 +46,13 @@ private:
         return angle;
     }
     
+    float normalizeAnglePiPi(float angle) {
+    // Normaliza el ángulo al rango [-π, π]
+    while (angle > PI) angle -= 2*PI;
+    while (angle < -PI) angle += 2*PI;
+    return angle;
+    }
+
     // Calcula theta3 y theta4 (versión simplificada de calc_theta3_theta4_nopt)
     bool calculateTheta3Theta4(float Bx, float By, float Ex, float Ey, 
                                float &theta3, float &theta4) {
