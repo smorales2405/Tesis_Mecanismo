@@ -48,75 +48,81 @@
                     </div>
                 </section>
 
-                <!-- Motor Lineal (Actuador) -->
+            <!-- Motor Lineal (Actuador) -->
                 <section class="motor-section">
                     <h3>Actuador Lineal</h3>
-                    <div class="motor-visual linear">
-                        <div class="linear-track">
-                            <div class="linear-slider" id="linearSlider"></div>
-                            <div class="track-markers">
-                                <span>0</span>
-                                <span>7.15</span>
-                                <span>14.3 cm</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="controls-grid">
-                        <div class="control-row">
-                            <label>Modo:</label>
-                            <select id="linearMode">
-                                <option value="fixed">Fijo</option>
-                                <option value="oscillating">Oscilante</option>
-                            </select>
-                            <span class="value-display" id="modeIndicator">Fijo</span>
-                        </div>
-
-                        <!-- Controles modo Fijo -->
-                        <div id="fixedControls">
-                            <div class="control-row">
-                                <label>Posición:</label>
-                                <input type="range" id="linearPosition" min="0" max="14.3" value="0" step="0.1">
-                                <span class="value-display" id="linearPosValue">0 cm</span>
-                            </div>
-                            <div class="control-row justify-end">
-                                <button class="btn btn-send" id="btnSendPosition">Enviar Posición</button>
+                    <div class="actuator-layout">
+                        <!-- Slider vertical -->
+                        <div class="actuator-slider-section">
+                            <div class="motor-visual linear">
+                                <div class="linear-track">
+                                    <div class="linear-slider" id="linearSlider"></div>
+                                </div>
+                                <div class="track-markers">
+                                    <span>14.3</span>
+                                    <span>7.15</span>
+                                    <span>0 cm</span>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Controles modo Oscilante -->
-                        <div id="oscillatingControls" class="hidden">
+                        <!-- Controles a la derecha -->
+                        <div class="actuator-controls-section">
                             <div class="control-row">
-                                <label>Rango Mín:</label>
-                                <input type="range" id="oscMin" min="0" max="14.3" value="0" step="0.1">
-                                <span class="value-display" id="oscMinValue">0 cm</span>
+                                <label>Modo:</label>
+                                <select id="linearMode">
+                                    <option value="fixed">Fijo</option>
+                                    <option value="oscillating">Oscilante</option>
+                                </select>
+                                <span class="value-display" id="modeIndicator">Fijo</span>
                             </div>
-                            <div class="control-row">
-                                <label>Rango Máx:</label>
-                                <input type="range" id="oscMax" min="0" max="14.3" value="14.3" step="0.1">
-                                <span class="value-display" id="oscMaxValue">14.3 cm</span>
-                            </div>
-                            <div class="control-row">
-                                <label>Velocidad:</label>
-                                <input type="range" id="oscSpeed" min="0" max="15" value="5" step="0.5">
-                                <span class="value-display" id="oscSpeedValue">5 cm/s</span>
-                            </div>
-                            <div class="control-row justify-end">
-                                <button class="btn btn-send" id="btnStartOsc">Iniciar Oscilación</button>
-                                <button class="btn btn-stop" id="btnStopOsc">Detener</button>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Info del actuador -->
-                    <div class="info-panel">
-                        <div class="info-row">
-                            <span class="info-label">Posición Actual:</span>
-                            <span class="info-value" id="currentPosition">0 cm</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Estado:</span>
-                            <span class="info-value" id="actuatorState">Detenido</span>
+                            <!-- Controles modo Fijo -->
+                            <div id="fixedControls">
+                                <div class="control-row">
+                                    <label>Posición:</label>
+                                    <input type="range" id="linearPosition" min="0" max="14.3" value="0" step="0.1">
+                                    <span class="value-display" id="linearPosValue">0 cm</span>
+                                </div>
+                                <div class="control-row justify-end">
+                                    <button class="btn btn-send" id="btnSendPosition">Enviar Posición</button>
+                                </div>
+                            </div>
+
+                            <!-- Controles modo Oscilante -->
+                            <div id="oscillatingControls" class="hidden">
+                                <div class="control-row">
+                                    <label>Rango Mín:</label>
+                                    <input type="range" id="oscMin" min="0" max="14.3" value="0" step="0.1">
+                                    <span class="value-display" id="oscMinValue">0 cm</span>
+                                </div>
+                                <div class="control-row">
+                                    <label>Rango Máx:</label>
+                                    <input type="range" id="oscMax" min="0" max="14.3" value="14.3" step="0.1">
+                                    <span class="value-display" id="oscMaxValue">14.3 cm</span>
+                                </div>
+                                <div class="control-row">
+                                    <label>Velocidad:</label>
+                                    <input type="range" id="oscSpeed" min="0" max="15" value="5" step="0.5">
+                                    <span class="value-display" id="oscSpeedValue">5 cm/s</span>
+                                </div>
+                                <div class="control-row justify-end">
+                                    <button class="btn btn-send" id="btnStartOsc">Iniciar</button>
+                                    <button class="btn btn-stop" id="btnStopOsc">Detener</button>
+                                </div>
+                            </div>
+
+                            <!-- Info del actuador -->
+                            <div class="info-panel">
+                                <div class="info-row">
+                                    <span class="info-label">Posición Actual:</span>
+                                    <span class="info-value" id="currentPosition">0 cm</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Estado:</span>
+                                    <span class="info-value" id="actuatorState">Detenido</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -136,26 +142,25 @@
                 <h2>Visualización del Mecanismo</h2>
                 
                 <div class="chart-container">
-                    <h3>Variación de Altura (O_y)</h3>
+                    <div class="chart-header">
+                        <h3>Variación de Altura (O_y)</h3>
+                        <div class="chart-indicator">
+                            <span class="indicator-value" id="realtimeOy">0.00</span>
+                            <span class="indicator-unit">cm</span>
+                        </div>
+                    </div>
                     <canvas id="chartOy"></canvas>
                 </div>
                 
                 <div class="chart-container">
-                    <h3>Ángulo de Inclinación (θ₄)</h3>
+                    <div class="chart-header">
+                        <h3>Ángulo de Inclinación (θ₄)</h3>
+                        <div class="chart-indicator">
+                            <span class="indicator-value" id="realtimeTh4">0.00</span>
+                            <span class="indicator-unit">°</span>
+                        </div>
+                    </div>
                     <canvas id="chartTh4"></canvas>
-                </div>
-
-                <div class="realtime-values">
-                    <div class="value-card">
-                        <span class="value-label">Altura O_y</span>
-                        <span class="value-number" id="realtimeOy">0.00</span>
-                        <span class="value-unit">cm</span>
-                    </div>
-                    <div class="value-card">
-                        <span class="value-label">Ángulo θ₄</span>
-                        <span class="value-number" id="realtimeTh4">0.00</span>
-                        <span class="value-unit">°</span>
-                    </div>
                 </div>
 
                 <div class="chart-controls">

@@ -177,14 +177,17 @@ body {
 
 /* Visualización del Motor Lineal */
 .motor-visual.linear {
-    flex-direction: column;
-    padding: 16px 20px 30px;
+    flex-direction: row;
+    padding: 16px 20px;
+    justify-content: center;
+    align-items: stretch;
+    min-height: 220px;
 }
 
 .linear-track {
-    width: 100%;
-    height: 40px;
-    background: linear-gradient(to right, #e2e8f0, #cbd5e0);
+    width: 40px;
+    height: 200px;
+    background: linear-gradient(to bottom, #cbd5e0, #e2e8f0);
     border-radius: 20px;
     position: relative;
     border: 2px solid #a0aec0;
@@ -196,19 +199,45 @@ body {
     background: linear-gradient(135deg, var(--primary-light), var(--primary));
     border-radius: 50%;
     position: absolute;
-    top: 3px;
-    left: 5px;
+    left: 3px;
+    bottom: 5px;
     box-shadow: 0 2px 8px rgba(90, 103, 216, 0.4);
-    transition: left 0.1s ease-out;
+    transition: bottom 0.1s ease-out;
 }
 
 .track-markers {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    margin-top: 8px;
+    margin-left: 10px;
     font-size: 0.75rem;
     color: var(--text-light);
-    padding: 0 5px;
+    height: 200px;
+    padding: 5px 0;
+}
+
+.actuator-layout {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+}
+
+.actuator-slider-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.actuator-controls-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+}
+
+.actuator-controls-section .control-row {
+    grid-template-columns: 90px 1fr 80px;
 }
 
 /* Controles */
@@ -437,15 +466,15 @@ select:focus {
 .charts-panel {
     display: flex;
     flex-direction: column;
+    gap: 0;
 }
 
 .chart-container {
     background: white;
     border-radius: 10px;
-    padding: 16px;
-    margin-bottom: 16px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
     border: 1px solid var(--border);
-    flex: 1;
 }
 
 .chart-container h3 {
@@ -453,9 +482,43 @@ select:focus {
     font-size: 0.95rem;
 }
 
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.chart-header h3 {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.chart-indicator {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+}
+
+.chart-indicator .indicator-value {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.chart-indicator .indicator-unit {
+    opacity: 0.85;
+    font-size: 0.75rem;
+}
+
 .chart-container canvas {
     width: 100% !important;
-    height: 150px !important;
+    height: 250px !important;
+    display: block;
 }
 
 /* Valores en tiempo real */
@@ -468,31 +531,28 @@ select:focus {
 
 .value-card {
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    border-radius: 12px;
-    padding: 20px;
+    border-radius: 8px;
+    padding: 10px 16px;
     text-align: center;
     color: white;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .value-label {
-    display: block;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     opacity: 0.9;
-    margin-bottom: 8px;
 }
 
 .value-number {
-    display: block;
-    font-size: 2rem;
+    font-size: 1.3rem;
     font-weight: 700;
-    line-height: 1;
 }
 
 .value-unit {
-    display: block;
-    font-size: 0.9rem;
+    font-size: 0.75rem;
     opacity: 0.8;
-    margin-top: 4px;
 }
 
 .chart-controls {
@@ -516,7 +576,8 @@ select:focus {
         flex-direction: column;
     }
     
+    /* REEMPLAZAR POR: */
     .realtime-values {
-        grid-template-columns: 1fr;
+        display: none;
     }
 }

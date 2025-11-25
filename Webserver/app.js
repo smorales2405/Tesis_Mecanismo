@@ -163,16 +163,18 @@ function initCharts() {
         responsive: true,
         maintainAspectRatio: false,
         animation: { duration: 0 },
+        layout: {
+            padding: { bottom: 5 }
+        },
         scales: {
             x: {
                 display: true,
                 title: { display: false },
-                ticks: { maxTicksLimit: 5, font: { size: 10 } }
+                ticks: { maxTicksLimit: 5, font: { size: 12 } }
             },
             y: {
                 display: true,
-                title: { display: false },
-                ticks: { font: { size: 10 } }
+                ticks: { font: { size: 12 } }
             }
         },
         plugins: {
@@ -204,8 +206,13 @@ function initCharts() {
                 ...commonOptions.scales,
                 y: {
                     ...commonOptions.scales.y,
-                    suggestedMin: -5,
-                    suggestedMax: 5
+                    min: 0,
+                    max: 15,
+                    title: {
+                        display: true,
+                        text: 'cm',
+                        font: { size: 13, weight: 'bold' }
+                    }
                 }
             }
         }
@@ -231,8 +238,13 @@ function initCharts() {
                 ...commonOptions.scales,
                 y: {
                     ...commonOptions.scales.y,
-                    suggestedMin: -30,
-                    suggestedMax: 30
+                    min: -15,
+                    max: 15,
+                    title: {
+                        display: true,
+                        text: 'grados (°)',
+                        font: { size: 13, weight: 'bold' }
+                    }
                 }
             }
         }
@@ -412,9 +424,10 @@ function updateLinearSlider(position) {
     const track = slider.parentElement;
     const maxPosition = 14.3;
     
-    const trackWidth = track.offsetWidth - 40;
+    // Calcular posición vertical (bottom)
+    const trackHeight = track.offsetHeight - 40;
     const percentage = Math.max(0, Math.min(1, position / maxPosition));
-    const leftPos = 5 + (percentage * trackWidth);
+    const bottomPos = 5 + (percentage * trackHeight);
     
-    slider.style.left = leftPos + 'px';
+    slider.style.bottom = bottomPos + 'px';
 }
