@@ -56,7 +56,7 @@ int32_t tol_home1 = 1*ENCODER_CPR_OUTPUT/360.0;   // °
 int32_t tol_home2 = 5*ENCODER_CPR_OUTPUT/360.0;   // °
 int32_t tol_home3 = 0.5*PULSES_PER_CM/10.0;       // mm
 int32_t PPSToHome = 20*ENCODER_CPR_OUTPUT/60;
-int32_t targetPosition = 0;
+int32_t targetPosition1 = 0;
 
 // Crear objeto de comunicación serial y RoboClaw
 HardwareSerial RoboclawSerial(2);  // Usar UART2 del ESP32
@@ -145,7 +145,7 @@ void loop() {
     }
 
     enc1 = roboclaw.ReadEncM1(ROBOCLAW_ADDRESS, &status1, &valid1);
-    if (abs(abs(enc1)-abs(targetPosition)) <= tol_home2) {
+    if (abs(abs(enc1)-abs(targetPosition1)) <= tol_home2) {
       roboclaw.ForwardM1(ROBOCLAW_ADDRESS, 0);
     }
   }
@@ -770,11 +770,11 @@ void parseAndSetLinearSpeed(String params) {
 void startOscillation() {
   if (!oscillatingMode) return;
   
-  int32_t targetPosition;
+  int32_t targetPosition2;
   
   if (movingForward) {
     // Mover hacia el límite máximo personalizado (extender)
-    targetPosition = -(int32_t)(maxOscillationLimit * PULSES_PER_CM);
+    targetPosition2 = -(int32_t)(maxOscillationLimit * PULSES_PER_CM);
     /*
     Serial.print("Extendiendo actuador hacia ");
     Serial.print(maxOscillationLimit);
@@ -782,7 +782,7 @@ void startOscillation() {
     */
   } else {
     // Mover hacia el límite mínimo personalizado (retraer)
-    targetPosition = -(int32_t)(minOscillationLimit * PULSES_PER_CM);
+    targetPosition2 = -(int32_t)(minOscillationLimit * PULSES_PER_CM);
     /*
     Serial.print("Retrayendo actuador hacia ");
     Serial.print(minOscillationLimit);
@@ -798,7 +798,7 @@ void startOscillation() {
                                        ACCEL/4,     // Aceleración suave
                                        speed,
                                        DECEL/4,     // Deceleración suave
-                                       targetPosition,
+                                       targetPosition2,
                                        0);  // Buffer = 0 para poder cambiar dirección
 }
 
@@ -902,10 +902,10 @@ void returnMotor1ToHome() {
     roboclaw.SpeedAccelM1(ROBOCLAW_ADDRESS, ACCEL, -PPSToHome);
   }
 
-  targetPosition = revolutions * PULSES_PER_REV;
+  targetPosition1 = revolutions * PULSES_PER_REV;
   
   float currentDegrees = encoderCountsToDegrees(enc1);
-  float targetDegrees = encoderCountsToDegrees(targetPosition);
+  float targetDegrees = encoderCountsToDegrees(targetPosition1);
   
   Serial.print("Motor 1 - Posición actual: ");
   Serial.print(currentDegrees);
@@ -960,7 +960,7 @@ void checkHomeReturn() {
   if (valid1) {
     const int32_t PULSES_PER_REV = 6533;
     // Tolerancia de ±10 pulsos
-    if (abs(abs(enc1)-abs(targetPosition)) <= tol_home1) {
+    if (abs(abs(enc1)-abs(targetPosition1)) <= tol_home1) {
       if (speed1 < 10) {  // Prácticamente detenido
         motor1AtHome = true;
       }
