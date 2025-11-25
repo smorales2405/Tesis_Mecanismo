@@ -177,6 +177,7 @@ void loop() {
         th4 = -(360-th4);
       } 
       O_y = result.O_y - offset_O_y;
+      /*
       //Serial.print("Altura: ");
       Serial.print(O_y);
       //Serial.print(" cm / ");
@@ -188,6 +189,7 @@ void loop() {
       Serial.print(" ");
       Serial.print("15");
       Serial.println(" ");
+      */
       lastKinematicsCheck = millis();  
     } else {
       Serial.println("Solución no válida");
@@ -575,7 +577,6 @@ void setMotorSpeed(uint8_t motor, float rpm) {
   // Convertir RPM a pulsos por segundo
   int32_t pulsesPerSecond = rpmToPulsesPerSecond(rpm);
   
-  /*
   Serial.print("Motor ");
   Serial.print(motor);
   Serial.print(" velocidad: ");
@@ -583,8 +584,7 @@ void setMotorSpeed(uint8_t motor, float rpm) {
   Serial.print(" RPM (");
   Serial.print(pulsesPerSecond);
   Serial.println(" pulsos/s)");
-  */
-  
+    
   // Usar las funciones de velocidad con aceleración
   if (motor == 1) {
     roboclaw.SpeedAccelM1(ROBOCLAW_ADDRESS, ACCEL, pulsesPerSecond);
@@ -609,13 +609,11 @@ void moveLinearActuator(float cm) {
   // Convertir cm a pulsos (negativo porque el motor va en reversa para extender)
   int32_t encoderCounts = -(int32_t)(cm * PULSES_PER_CM);
   
-  /*
   Serial.print("Moviendo actuador lineal a ");
   Serial.print(cm);
   Serial.print(" cm (");
   Serial.print(encoderCounts);
   Serial.println(" pulsos)");
-  */
   
   // Usar velocidad más lenta para el actuador lineal
   uint32_t linearSpeed = 1000;  // Ajustar según necesidad
@@ -633,7 +631,7 @@ void setLinearActuatorSpeed(float cm_per_sec) {
   if (cm_per_sec == 0) {
     oscillatingMode = false;
     roboclaw.ForwardM2(ROBOCLAW_ADDRESS, 0);
-    //Serial.println("Actuador lineal detenido");
+    Serial.println("Actuador lineal detenido");
     return;
   }
   
@@ -653,7 +651,6 @@ void setLinearActuatorSpeed(float cm_per_sec) {
   oscillatingSpeed = abs(cm_per_sec);  // Guardar velocidad absoluta
   movingForward = true;  // Empezar extendiendo
   
-  /*
   Serial.print("Modo oscilatorio activado: ");
   Serial.print(oscillatingSpeed);
   Serial.println(" cm/s");
@@ -663,7 +660,6 @@ void setLinearActuatorSpeed(float cm_per_sec) {
   Serial.print(maxOscillationLimit);
   Serial.println(" cm");
   Serial.println("Ingrese 'S' o V2:0 para detener");
-  */
   
   // Iniciar movimiento hacia el límite máximo
   startOscillation();
@@ -692,19 +688,15 @@ void parseAndSetLinearSpeed(String params) {
   if (spaceCount == 0) {
     // Solo velocidad, sin límites
     cm_per_sec = params.toFloat();
-    /*
     Serial.print("Velocidad: ");
     Serial.print(cm_per_sec);
     Serial.println(" cm/s (límites por defecto)");
-    */
     
   } else if (spaceCount == 1) {
     // Error: se necesitan 2 límites o ninguno
-    /*
     Serial.println("ERROR: Debes especificar AMBOS límites (mínimo y máximo)");
     Serial.println("Formato correcto: V2:velocidad min max");
     Serial.println("Ejemplo: V2:5 2 12");
-    */
     return;
     
   } else {
@@ -733,13 +725,11 @@ void parseAndSetLinearSpeed(String params) {
     // Validar límites
     if (minLimit < MIN_POSITION_CM || minLimit > MAX_POSITION_CM ||
         maxLimit < MIN_POSITION_CM || maxLimit > MAX_POSITION_CM) {
-      /*
       Serial.print("ERROR: Límites fuera de rango (");
       Serial.print(MIN_POSITION_CM);
       Serial.print(" - ");
       Serial.print(MAX_POSITION_CM);
       Serial.println(" cm)");
-      */
       return;
     }
     
@@ -748,7 +738,6 @@ void parseAndSetLinearSpeed(String params) {
       return;
     }
     
-    /*
     Serial.print("Velocidad: ");
     Serial.print(cm_per_sec);
     Serial.print(" cm/s, Límites: ");
@@ -756,7 +745,6 @@ void parseAndSetLinearSpeed(String params) {
     Serial.print(" - ");
     Serial.print(maxLimit);
     Serial.println(" cm");
-    */
   }
   
   // Actualizar límites globales de oscilación
@@ -775,19 +763,15 @@ void startOscillation() {
   if (movingForward) {
     // Mover hacia el límite máximo personalizado (extender)
     targetPosition2 = -(int32_t)(maxOscillationLimit * PULSES_PER_CM);
-    /*
     Serial.print("Extendiendo actuador hacia ");
     Serial.print(maxOscillationLimit);
     Serial.println(" cm...");
-    */
   } else {
     // Mover hacia el límite mínimo personalizado (retraer)
     targetPosition2 = -(int32_t)(minOscillationLimit * PULSES_PER_CM);
-    /*
     Serial.print("Retrayendo actuador hacia ");
     Serial.print(minOscillationLimit);
     Serial.println(" cm...");
-    */
   }
   
   // Convertir velocidad cm/s a pulsos/s
@@ -822,13 +806,13 @@ void checkOscillation() {
     // Llegó al límite máximo (con tolerancia de 50 pulsos)
     reachedLimit = true;
     movingForward = false;
-    //Serial.println("Límite máximo alcanzado - Cambiando dirección");
+    Serial.println("Límite máximo alcanzado - Cambiando dirección");
   } 
   else if (!movingForward && currentPosition >= (minLimitPulses - 50)) {
     // Llegó al límite mínimo (con tolerancia de 50 pulsos)
     reachedLimit = true;
     movingForward = true;
-    //Serial.println("Límite mínimo alcanzado - Cambiando dirección");
+    Serial.println("Límite mínimo alcanzado - Cambiando dirección");
   }
   
   // Si llegó al límite, cambiar dirección
@@ -990,8 +974,8 @@ void checkHomeReturn() {
     Serial.println("=====================================");
   }
   
-  // Timeout de seguridad (30 segundos)
-  if (millis() - homeReturnStart > 30000) {
+  // Timeout de seguridad (10 segundos)
+  if (millis() - homeReturnStart > 5000) {
     returningToHome = false;
     roboclaw.ForwardM1(ROBOCLAW_ADDRESS, 0);
     roboclaw.ForwardM2(ROBOCLAW_ADDRESS, 0);
