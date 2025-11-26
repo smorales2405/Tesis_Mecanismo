@@ -16,7 +16,7 @@ float current_position = 0.0, last_position = 0.0;
 double posicionf = 0.0;
 
 // Variables Control PID
-float Kp = 20.0, Ki = 5.0, Kd = 0.0;
+float Kp = 40.0, Ki = 10.0, Kd = 0.0;
 double PWM = 0.0, Abs_Setpoint = 0.0, Error_pos = 0.0; 
 double tolerancia = 0.1;
 double Prcntg_PWM = 0.0, Voltaje = 0.0;

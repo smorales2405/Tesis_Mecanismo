@@ -30,8 +30,8 @@ boolean newData = false;
 float dataNumber = 0.0, Setpoint = 0.0;
 
 // Pines
-int Pin_encoder_A = 3, Pin_encoder_B = 2;
-int Pin_DIR = 5, Pin_PWM = 6;
+int Pin_encoder_A = 20, Pin_encoder_B = 21;
+int Pin_DIR = 8, Pin_PWM = 9;
 
 void setup()  
 {
