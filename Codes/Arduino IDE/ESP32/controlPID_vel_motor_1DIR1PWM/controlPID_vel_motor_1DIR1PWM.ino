@@ -2,12 +2,12 @@
 #include <MeanFilterLib.h>
 
 // Timer para ESP32
-hw_timer_t * timer = NULL;
-volatile bool timer_flag = false;
+//hw_timer_t * timer = NULL;
+//volatile bool timer_flag = false;
 
 // Constantes
 const float Pi = 3.14159265;
-const uint16_t cuentas_max = 6533;
+const uint16_t cuentas_max = 4741;
 const float dt = 2.5; //Milisegundos
 
 // Variables lectura encoder
@@ -18,13 +18,14 @@ volatile int8_t last_state = 0, current_state = 0;
 MeanFilter<float> meanFilter(10);
 float current_position = 0.0, last_position = 0.0;
 float velocidad = 0.0;
-double velocidadf = 0.0;
+double velocidadf = 0.0; 
+double RPM = 0.0, RPM_s = 0.0;
 
 // Variables Control PID
 float Kp = 5.0, Ki = 10.0, Kd = 0.0;
 double PWM = 0.0, Abs_Setpoint = 0.0, Prcntg_PWM = 0.0, Voltaje = 0.0;
 int U = 0;
-PID VelPID(&velocidadf, &PWM, &Abs_Setpoint, Kp, Ki, Kd, DIRECT); 
+PID VelPID(&RPM, &PWM, &Abs_Setpoint, Kp, Ki, Kd, DIRECT); 
 
 // Variables Serial
 const byte numChars = 32;
@@ -33,7 +34,7 @@ boolean newData = false;
 float dataNumber = 0.0, Setpoint = 0.0;
 
 // Pines
-int Pin_encoder_A = 16, Pin_encoder_B = 17;
+int Pin_encoder_A = 26, Pin_encoder_B = 27;
 int Pin_DIR = 32, Pin_PWM = 33;
 
 // Configuración PWM para ESP32
@@ -41,8 +42,10 @@ const int freq = 7812;  // Frecuencia PWM en Hz
 const int ledChannel = 0;  // Canal PWM
 const int resolution = 8;  // Resolución de 8 bits (0-255)
 
-void IRAM_ATTR lectura_encoder();
-void IRAM_ATTR ISR_Timer();
+//void IRAM_ATTR lectura_encoder();
+//void IRAM_ATTR ISR_Timer();
+unsigned long previousMillis = 0;
+unsigned long currentMillis = 0;
 
 void setup()  
 {
@@ -66,13 +69,20 @@ void setup()
     
     // Configurar Timer para ESP32 (nueva API v3.x)
     // Frecuencia = 1000000 / (dt * 1000) = 1000 / dt Hz
-    timer = timerBegin(1000000 / (dt * 1000));  // Frecuencia en Hz
-    timerAttachInterrupt(timer, &ISR_Timer);
-    timerStart(timer);
+    //timer = timerBegin(1000000 / (dt * 1000));  // Frecuencia en Hz
+    //timerAttachInterrupt(timer, &ISR_Timer);
+    //timerStart(timer);
 }
 
 void loop()
 { 
+
+  currentMillis = millis(); 
+  if (currentMillis - previousMillis >= dt) {
+    PID_Control();
+    previousMillis = currentMillis;
+    //Serial.println("CONTROL");
+  }
 
   LeerSerial();
   ObtenerSetpoint();
@@ -80,7 +90,7 @@ void loop()
 
 }
 
-void IRAM_ATTR ISR_Timer()
+void PID_Control()
 {      
     
     VelPID.Compute();
@@ -101,17 +111,19 @@ void IRAM_ATTR ISR_Timer()
         digitalWrite(Pin_DIR, LOW);      
         ledcWrite(Pin_PWM, 0);  // Cambiar analogWrite por ledcWrite
     }
- 
+    
     current_position = (cuentas*2*Pi)/cuentas_max; 
     velocidad = ((current_position - last_position)/(dt)*1000);
     velocidad = meanFilter.AddValue(velocidad);
+    RPM_s = (velocidad/(2*PI))*60;
     velocidadf = abs(velocidad);
+    RPM = (velocidadf/(2*PI))*60; 
     
     last_position = current_position;
     
 }
 
-void IRAM_ATTR lectura_encoder()
+void lectura_encoder()
 {
     if(digitalRead(Pin_encoder_A)==1)
       bitSet(current_state,1);
@@ -180,9 +192,9 @@ void ObtenerSetpoint() {
 void EnviarDatos(){
 Serial.print(Setpoint); 
   Serial.print(",");
-  Serial.print(velocidad);
+  Serial.print(RPM);
   Serial.print(",");
-  Serial.println(U);
+  Serial.println(PWM);
   //Serial.print(" ");
   //Serial.print(0); 
   //Serial.print(" ");
