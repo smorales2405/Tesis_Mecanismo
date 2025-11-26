@@ -2,7 +2,7 @@
 #include <MeanFilterLib.h>
 
 // Constantes
-const uint16_t cuentas_max = 145.1;
+const uint16_t cuentas_max = 6533;
 const float dt = 100;
 
 // Variables lectura encoder
