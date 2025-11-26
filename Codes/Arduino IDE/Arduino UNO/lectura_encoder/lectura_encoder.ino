@@ -24,6 +24,8 @@ const byte numChars = 32;
 char receivedChars[numChars];  
 boolean newData = false;
 float dataNumber = 0.0, Setpoint = 0.0;
+unsigned long PrintTime = 50;
+unsigned long currentTime = 0, lastPrintTime = 0;
 
 // Pines
 int Pin_encoder_A = 3, Pin_encoder_B = 2;
@@ -31,7 +33,7 @@ int Pin_DIR = 5, Pin_PWM = 6;
 
 void setup()  
 {
-	Serial.begin(9600); 
+	Serial.begin(115200); 
 	
 	pinMode(Pin_encoder_A,INPUT_PULLUP); 
 	pinMode(Pin_encoder_B,INPUT_PULLUP); 
@@ -51,7 +53,12 @@ void loop()
 
   LeerSerial();
   ObtenerPWM();
-  EnviarDatos();
+
+  currentTime = millis();
+  if (currentTime - lastPrintTime >= PrintTime) {
+    lastPrintTime = currentTime;
+    EnviarDatos();
+  }
 
 }
 
@@ -159,6 +166,8 @@ void EnviarDatos(){
   //Serial.print(" Velocidad: ");
   Serial.print(RPM);
   //Serial.print(abs(Dato2-velocidad));
+  Serial.print(" ");
+  Serial.print(PWM); 
   //Serial.print(" ");
   //Serial.print(-500); 
   //Serial.print(" ");
