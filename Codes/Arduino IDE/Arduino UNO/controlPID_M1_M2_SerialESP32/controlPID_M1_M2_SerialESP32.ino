@@ -34,7 +34,7 @@ PID VelPID_M1(&RPM_M1, &PWM_M1, &Abs_Setpoint_M1, Kp_M1, Ki_M1, Kd_M1, DIRECT);
 
 // Pines Motor 1
 int Pin_encoder_A_M1 = 3, Pin_encoder_B_M1 = 2;
-int Pin_DIR_M1 = 6, Pin_PWM_M1 = 5;
+int Pin_DIR_M1 = 5, Pin_PWM_M1 = 6;
 
 // ========== MOTOR 2 - POSICIÓN ==========
 // Variables lectura encoder Motor 2
