@@ -15,7 +15,8 @@ volatile int8_t last_state = 0, current_state = 0;
 MeanFilter<float> meanFilter(10);
 float current_position = 0.0, last_position = 0.0;
 float velocidad = 0.0;
-double velocidadf = 0.0, RPM = 0.0;
+double velocidadf = 0.0; 
+double RPM = 0.0, RPM_s = 0.0;
 
 // Variables Control PID
 float Kp = 5.0, Ki = 10.0, Kd = 0.0;
@@ -99,6 +100,7 @@ void ISR_Timer()
     current_position = (cuentas*2*Pi)/cuentas_max; 
     velocidad = ((current_position - last_position)/(dt)*1000);
     velocidad = meanFilter.AddValue(velocidad);
+    RPM_s = (velocidad/(2*PI))*60;
     velocidadf = abs(velocidad);
     RPM = (velocidadf/(2*PI))*60; 
     
@@ -174,11 +176,11 @@ void ObtenerSetpoint() {
 void EnviarDatos(){
 Serial.print(Setpoint); 
   Serial.print(",");
-  Serial.print(RPM);
+  Serial.print(RPM_s);
   Serial.print(",");
   Serial.print(U);
   Serial.print(" ");
-  Serial.print(0); 
+  Serial.print(-100); 
   Serial.print(" ");
   Serial.print(100); 
   Serial.println(" ");

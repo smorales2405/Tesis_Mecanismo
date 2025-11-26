@@ -16,7 +16,7 @@ float current_position = 0.0, last_position = 0.0;
 double posicionf = 0.0;
 
 // Variables Control PID
-float Kp = 10.0, Ki = 5.0, Kd = 0.1;
+float Kp = 20.0, Ki = 5.0, Kd = 0.0;
 double PWM = 0.0, Abs_Setpoint = 0.0, Error_pos = 0.0; 
 double tolerancia = 0.1;
 double Prcntg_PWM = 0.0, Voltaje = 0.0;
@@ -30,8 +30,8 @@ boolean newData = false;
 float dataNumber = 0.0, Setpoint = 0.0;
 
 // Pines
-int Pin_encoder_A = 3, Pin_encoder_B = 2;
-int Pin_DIR = 5, Pin_PWM = 6;
+int Pin_encoder_A = 20, Pin_encoder_B = 21;
+int Pin_DIR = 8, Pin_PWM = 9;
 
 void setup()  
 {
@@ -43,8 +43,8 @@ void setup()
 	pinMode(Pin_DIR,OUTPUT); 
   pinMode(Pin_PWM,OUTPUT);
 
-	TCCR0B = TCCR0B & B11111000 | B00000010;   // Set PWM frequency of 7812.50 Hz for D5 & D6  
-	//TCCR1B = TCCR1B & B11111000 | B00000010;   // Set PWM frequency of 3921.16 Hz for D9 & D10
+	//TCCR0B = TCCR0B & B11111000 | B00000010;   // Set PWM frequency of 7812.50 Hz for D5 & D6  
+	TCCR2B = TCCR2B & B11111000 | B00000001;  // Prescaler = 1 para pines 9 y 10
 	//TCCR2B = TCCR2B & B11111000 | B00000010;     // Set PWM frequency of 3921.16 Hzfor D3 & D11 
 
 	PosPID.SetMode(AUTOMATIC);
