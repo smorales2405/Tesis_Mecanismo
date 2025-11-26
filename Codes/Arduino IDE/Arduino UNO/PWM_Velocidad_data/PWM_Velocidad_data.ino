@@ -4,7 +4,7 @@
 // ==================== CONFIGURACIÓN DE PARÁMETROS ====================
 
 // Tiempo que cada valor de PWM se mantiene activo (en segundos)
-const float tiempoPorPWM = 5.0;
+const float tiempoPorPWM = 12.0;
 
 // Intervalo de impresión por serial (en milisegundos)
 const unsigned long PrintTime = 100;
@@ -18,7 +18,8 @@ const unsigned long PrintTime = 100;
 #ifdef MODO_MANUAL
   // Define aquí los valores de PWM en porcentaje (-100 a 100)
   // Evitar valores entre -10 y 10
-  float valoresPWM[] = {20, 30, 40, 50, 60};
+  //float valoresPWM[] = {-30, -40, -50, -60, -70, -80};
+  float valoresPWM[] = {-50};
   const int cantidadValores = sizeof(valoresPWM) / sizeof(valoresPWM[0]);
 #endif
 
@@ -69,6 +70,7 @@ bool secuenciaActiva = false;
 int indiceActual = 0;
 unsigned long tiempoInicioPWM = 0;
 unsigned long duracionPWM_ms;
+unsigned long tiempoInicioSecuencia = 0;
 
 // Pines
 int Pin_encoder_A = 3, Pin_encoder_B = 2;
@@ -220,6 +222,7 @@ void iniciarSecuencia() {
     secuenciaActiva = true;
     indiceActual = 0;
     tiempoInicioPWM = millis();
+    tiempoInicioSecuencia = millis();
     
     // Aplicar primer valor de PWM
     aplicarPWM(valoresPWM[indiceActual]);
@@ -295,7 +298,14 @@ void finalizarSecuencia() {
 }
 
 void EnviarDatos() {
+  // Calcular tiempo transcurrido (compensado por factor Timer0)
+  unsigned long tiempoTranscurrido = millis() - tiempoInicioSecuencia;
+  float tiempoSegundos = (tiempoTranscurrido / 8.0) / 1000.0;
+  
   float porcentajePWM = (PWM / 255.0) * 100.0;
+  
+  Serial.print(tiempoSegundos, 3);
+  Serial.print(" ");
   Serial.print(porcentajePWM);
   Serial.print(" ");
   Serial.println(RPM);
