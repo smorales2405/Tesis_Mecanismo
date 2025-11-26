@@ -65,7 +65,7 @@ boolean newData = false;
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   // ===== Configuración Motor 1 =====
   pinMode(Pin_encoder_A_M1, INPUT);
