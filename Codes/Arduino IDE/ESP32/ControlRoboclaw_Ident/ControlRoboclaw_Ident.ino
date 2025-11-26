@@ -1,5 +1,6 @@
 #include <HardwareSerial.h>
 #include "RoboClaw.h"
+#include <MeanFilterLib.h>
 
 // ==================== CONFIGURACIÓN DE HARDWARE ====================
 
@@ -43,7 +44,7 @@ const unsigned long PrintTime = 50;
   #ifdef CONTROL_MOTOR1_VELOCIDAD
     // Setpoints de VELOCIDAD en RPM para Motor 1 (Crank)
     // Valores positivos = sentido horario, negativos = antihorario
-    float valoresSetpoint[] = {20, 30, 40, 50, 60, 50, 40, 30, 20};
+    float valoresSetpoint[] = {20, 30, 40, 30, 20};
   #endif
   
   #ifdef CONTROL_MOTOR2_POSICION
@@ -88,8 +89,19 @@ const float VELOCIDAD_ACTUADOR = 5.0;
 int32_t enc1 = 0, enc2 = 0, speed1 = 0, speed2 = 0;
 uint8_t status1, status2, status3, status4;
 bool valid1, valid2, valid3, valid4;
+
 // Variables para PWM
 int16_t pwm1 = 0, pwm2 = 0;
+
+// Variables para cálculo de error, derivada e integral
+MeanFilter<float> filtroError(5);  // Filtro de media móvil (ventana = 5)
+float errorActual = 0.0;
+float errorFiltrado = 0.0;
+float errorFiltradoAnterior = 0.0;
+float derivadaError = 0.0;
+float integralError = 0.0;
+float errorAnterior = 0.0;  // Para integral trapezoidal
+unsigned long tiempoAnterior = 0;
 
 // Configuración PID
 const uint32_t ACCEL = 10000;   // Aceleración en pulsos/s^2
@@ -206,6 +218,15 @@ void iniciarSecuencia() {
     indiceActual = 0;
     tiempoInicioSetpoint = millis();
     tiempoInicioSecuencia = millis();
+    tiempoAnterior = millis();
+    
+    // Resetear variables de error
+    errorActual = 0.0;
+    errorFiltrado = 0.0;
+    errorFiltradoAnterior = 0.0;
+    derivadaError = 0.0;
+    integralError = 0.0;
+    errorAnterior = 0.0;
     
     // Aplicar primer setpoint
     aplicarSetpoint(valoresSetpoint[indiceActual]);
@@ -294,8 +315,13 @@ void detenerMotores() {
 
 void enviarDatos() {
   // Calcular tiempo transcurrido en segundos
-  unsigned long tiempoTranscurrido = millis() - tiempoInicioSecuencia;
+  unsigned long tiempoActualMs = millis();
+  unsigned long tiempoTranscurrido = tiempoActualMs - tiempoInicioSecuencia;
   float tiempoSegundos = tiempoTranscurrido / 1000.0;
+  
+  // Calcular dt en segundos
+  float dt = (tiempoActualMs - tiempoAnterior) / 1000.0;
+  if (dt <= 0) dt = PrintTime / 1000.0;  // Evitar división por cero
   
   // Leer valores actuales
   float valorReal = 0.0;
@@ -322,14 +348,37 @@ void enviarDatos() {
     pwmPorcentaje = (pwm2 / 32767.0) * 100.0;
   #endif
   
-  // Imprimir: Tiempo Setpoint ValorReal PWM(%)
+  // Calcular error
+  errorActual = setpointActual - valorReal;
+  
+  // Filtrar error (equivalente a movmean en MATLAB)
+  errorFiltrado = filtroError.AddValue(errorActual);
+  
+  // Calcular derivada del error filtrado (equivalente a gradient en MATLAB)
+  derivadaError = (errorFiltrado - errorFiltradoAnterior) / dt;
+  
+  // Calcular integral del error (método trapezoidal - equivalente a cumtrapz)
+  integralError += ((errorActual + errorAnterior) / 2.0) * dt;
+  
+  // Imprimir: Tiempo Setpoint ValorReal PWM Error dError iError
   Serial.print(tiempoSegundos, 3);
   Serial.print(" ");
   Serial.print(setpointActual, 2);
   Serial.print(" ");
   Serial.print(valorReal, 2);
   Serial.print(" ");
-  Serial.println(pwmPorcentaje, 2);
+  Serial.print(pwmPorcentaje, 2);
+  Serial.print(" ");
+  Serial.print(errorFiltrado, 4);
+  Serial.print(" ");
+  Serial.print(derivadaError, 4);
+  Serial.print(" ");
+  Serial.println(integralError, 4);
+  
+  // Guardar valores anteriores para siguiente iteración
+  errorFiltradoAnterior = errorFiltrado;
+  errorAnterior = errorActual;
+  tiempoAnterior = tiempoActualMs;
 }
 
 void leerEstado() {
@@ -485,6 +534,6 @@ void printConfig() {
   Serial.println("  R - Resetear encoders");
   Serial.println("  L - Leer estado actual");
   Serial.println("  H - Mostrar esta ayuda");
-  Serial.println("\nFormato de salida: Tiempo(s) Setpoint ValorReal PWM(%)");
+  Serial.println("\nFormato de salida: Tiempo Setpoint ValorReal PWM Error dError iError");
   Serial.println("============================================\n");
 }
